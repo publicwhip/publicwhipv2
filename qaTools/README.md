@@ -1,0 +1,1 @@
+These are configuration tools for the qa system (including code style and inspections for PHPStorm).

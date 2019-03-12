@@ -1,0 +1,1 @@
+These are the front-end controllers basically making sure that the pages are displayed.

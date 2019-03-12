@@ -1,0 +1,54 @@
+version: "3.2"
+
+services:
+  nginx:
+    image: nginx:1.15.9-alpine
+    container_name: publicwhip-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ../:/data/
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+
+  phpfpm:
+    build: ./php/
+    container_name: publicwhip-php
+    expose:
+      - "9000"
+    environment:
+      - PUBLICWHIP_ENVIRONMENT=docker
+    volumes:
+      - ../:/data
+
+  mariadb:
+    image: mariadb:10.3-bionic
+    container_name: publicwhip-mariadb
+    volumes:
+      - /var/lib/mysql
+      - ../database:/docker-entrypoint-initdb.d/
+      - ./mariadb.cnf:/etc/mysql/conf.d/publicwhip.cnf
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=publicwhip-db
+      - MYSQL_USER=publicwhip-user
+      - MYSQL_PASSWORD=password
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: publicwhip-phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      - PMA_HOST=mariadb
+      - PMA_USER=root
+      - PMA_PASSWORD=root
+
+  mailhog:
+    container_name: publicwhip-mailhog
+    image: mailhog/mailhog
+    restart: always
+    expose:
+      - "1025"
+    ports:
+      - "8025:8025"

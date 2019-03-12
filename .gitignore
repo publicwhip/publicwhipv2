@@ -1,0 +1,14 @@
+.idea
+.php_cs.cache
+logs/*
+!logs/.gitkeep
+!logs/README.md
+cache/*
+!cache/.gitkeep
+!cache/README.md
+vendor/*
+qa/*
+!qa/.gitkeep
+!qa/README.md
+.phpunit.result.cache
+!.gitkeep

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="publicwhip-ruleset">
+    <description>PublicWhip  Ruleset. Created with the PHP Coding Standard Generator. http://edorian.github.com/php-coding-standard-generator/
+    </description>
+    <!-- Code MUST follow all rules outlined in PSR-12. -->
+    <rule ref="PSR12"/>
+
+</ruleset>

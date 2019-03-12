@@ -1,0 +1,1 @@
+This is where Twig and other sub-systems store their cache files.

@@ -1,0 +1,38 @@
+parameters:
+    git_dir: .
+    bin_dir: vendor/bin
+    tasks:
+        composer: ~
+        composer_require_checker:
+            config_file: ./qaTools/composerRequireCheckWhitelist.json
+        file_size:
+            max_size: 10M
+            ignore_patterns: ['database','docker','cache','logs']
+        phpcs:
+            standard: ./qaTools/phpcs.xml
+            ignore_patterns: ['web','database','docker','cache','logs','.phpstorm.meta.php']
+        phplint: ~
+        phpmd:
+            whitelist_patterns:
+                - /^src\/(.*)/
+                - /^tests\/(.*)/
+            ruleset:
+                - ./qaTools/phpmd.xml
+        phpstan:
+            configuration: ./qaTools/phpstan.neon
+            level: 7
+            ignore_patterns: ['web','database','docker','cache','logs','.phpstorm.meta.php','NotFoundHandler.php']
+        phpversion:
+            project: '7.3'
+        phpunit:
+          config_file: ./qaTools/phpunit.xml
+        securitychecker: ~
+        phpcpd:
+            directory: '.'
+            exclude: ['vendor','web','database','docker','cache','logs','.phpstorm.meta.php']
+            names_exclude: []
+            regexps_exclude: []
+            fuzzy: false
+            min_lines: 5
+            min_tokens: 70
+            triggered_by: ['php']

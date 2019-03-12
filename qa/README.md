@@ -1,0 +1,1 @@
+This is where PHP Unit outputs it's code coverage data.

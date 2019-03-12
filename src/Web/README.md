@@ -1,0 +1,1 @@
+This folder contains any web specific files.

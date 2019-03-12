@@ -1,0 +1,9 @@
+{% extends "DivisionController/template.twig" %}
+{% block title %}Counting votes{% endblock title %}
+{% block content %}
+    Division name: {{ division.name }}<br>
+    Date and number: {{ division.date }}.{{ division.number }}<br>
+    House: {{ division.house }}<br>
+    Name: {{ division.name }}
+    Motion: {{ division.motion }}<br>
+{% endblock content %}

@@ -1,0 +1,22 @@
+{
+  "symbol-whitelist" : [
+    "null", "true", "false",
+    "static", "self", "parent",
+    "array", "string", "int", "float", "bool", "iterable", "callable", "void", "object",
+    "Swift_NullTransport",
+    "Swift_SmtpTransport",
+    "Swift_Mailer",
+    "Swift_Message",
+    "Swift_SendmailTransport"
+  ],
+  "php-core-extensions" : [
+    "Core",
+    "date",
+    "pcre",
+    "Phar",
+    "Reflection",
+    "SPL",
+    "standard"
+  ],
+  "scan-files" : []
+}
