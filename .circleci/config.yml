@@ -54,10 +54,7 @@ jobs:
       # run tests
       - run:
          name: Run Unit tests
-         command: ./vendor/bin/phpunit
+         command: ./vendor/bin/phpunit -c ./qaTools/phpunit.xml
       - run:
-          name: Run CS tests
-          command: ./vendor/bin/phpcs
-      - run:
-          name: Run Unit tests
-          command: ./vendor/bin/phpunit
+          name: Run Grumphp
+          command: ./vendor/bin/grumphp run
