@@ -27,8 +27,7 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-            # "composer.lock" can be used if it is committed to the repo
-            - v1-dependencies-{{ checksum "composer.json" }}
+            - v1-dependencies-{{ checksum "composer.lock" }}
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
@@ -44,18 +43,9 @@ jobs:
             composer install -n --prefer-dist
 
       - save_cache:
-          key: v1-dependencies-{{ checksum "composer.json" }}
+          key: v1-dependencies-{{ checksum "composer.lock" }}
           paths:
             - ./vendor
-      - restore_cache:
-          keys:
-            - node-v1-{{ checksum "package.json" }}
-            - node-v1-
-      - run: yarn install
-      - save_cache:
-          key: node-v1-{{ checksum "package.json" }}
-          paths:
-            - node_modules
 
       # prepare the database
       #- run: touch storage/testing.sqlite
@@ -67,7 +57,7 @@ jobs:
          command: ./vendor/bin/phpunit
       - run:
           name: Run CS tests
-          command: vendor/bin/phpcs
+          command: ./vendor/bin/phpcs
       - run:
           name: Run Unit tests
-          command: vendor/bin/phpunit
+          command: ./vendor/bin/phpunit
