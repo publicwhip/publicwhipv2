@@ -8,7 +8,11 @@
 
     Division motion text is stored in a custom 'wiki' format which needs to be parsed.
 
-* 0.5 - Create basic division editing system (with no authentication) : Estimate 3-4 days
+* 0.4.5 - Create basic division editing system (with no authentication) : Estimate 3-4 days
+
+* 0.5 - Show/List policies (aka "dreams" in v1 database). Estimate 1 day
+
+* 0.5.5 - Add ability to modify policies. Estimate 2 days.
 
 * 0.6 - Add authentication. Estimate 2-3 days.
 
@@ -19,7 +23,7 @@
 * 0.7 - Add basic votes display on divisions. Estimate 2-3 days.
 * 0.8 - Replace existing configuration system to a simpler one using `.env` files. Estimate 1 day
 * 0.9 - Ensure templates, routing and dependency injector are cached on production. Estimate 1 day
-* 0.10 - Get a better web site design in place.
+* 0.10 - Get a better web site design in place. Estimate 4 days.
 * 0.11 - Ensure adequate logging/instrumentation is in place. Estimate 1 day
 * 0.21 - Get unit test coverage to at least 20% with those tests then being fully mutation covered.
         Estimate 3-4 days.
@@ -50,6 +54,10 @@
  
 ## <a name="completed">Completed Milestones</a> (in recently completed order)
 
+* 0.3.1 - Small fixes.
+    
+    Added continuous integration settings, missing database tables (for policies), added planned
+    milestones, fix indentation in composer.json
 * 0.3 - Prepare for upload to Github. Estimate 1 day. DONE - 2019-03-12
 
     The system should present a basic styled POC (proof-of-concept) website with

@@ -1,0 +1,10 @@
+# .gitattributes
+tests/ export-ignore
+docker/ export-ignore
+qa/ export-ignore
+qaTools/ export-ignore
+docs/ export-ignore
+database/ export-ignore
+
+# Auto detect text files and perform LF normalization
+* text=auto

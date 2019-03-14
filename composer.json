@@ -1,62 +1,68 @@
 {
-    "name": "bairwell/publicwhip",
-    "description": "Publicwhip v2 website",
-    "type": "project",
-    "homepage": "https://www.publicwhip.org.uk/",
-    "require": {
-        "php": ">=7.2",
-        "ext-pdo": "*",
-        "slim/slim": "^3",
-        "psr/log": "^1",
-        "twig/twig": "^2",
-        "slim/twig-view": "^2",
-        "monolog/monolog": "^1.24",
-        "php-di/php-di": "^6.0",
-        "php-di/slim-bridge": "^2.0",
-        "psr/http-message": "^1.0",
-        "psr/container": "^1",
-        "slim/csrf": "^0.5",
-        "slim/flash": "^0.1",
-        "maximebf/debugbar": "^1.15",
-        "swiftmailer/swiftmailer": "^5.4",
-        "illuminate/database": "^5.1",
-        "illuminate/events": "^5.1",
-        "illuminate/container": "^5.8",
-        "illuminate/support": "^5.8",
-        "illuminate/contracts": "^5.8",
-        "slim/http-cache": "^0.4.0",
-        "erusev/parsedown": "^1.7"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^8",
-        "roave/security-advisories": "dev-master",
-        "phpstan/phpstan-strict-rules": "^0.11",
-        "phpmd/phpmd": "^2",
-        "maglnet/composer-require-checker": "^1",
-        "phpro/grumphp": "^0.15",
-        "phpstan/phpstan": "^0.11",
-        "sensiolabs/security-checker": "^5",
-        "squizlabs/php_codesniffer": "^3",
-        "infection/infection": "^0.12",
-        "sebastian/phpcpd": "^4",
-        "jakub-onderka/php-parallel-lint": "^1.0"
-    },
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Richard Bairwell",
-            "email": "team@publicwhip.org.uk"
-        }
-    ],
-    "support": {
-      "issues": "https://github.com/publicwhip/publicwhipv2/issues",
-      "docs": "https://github.com/publicwhip/publicwhip/tree/master/docs",
+  "name": "bairwell/publicwhip",
+  "description": "Publicwhip v2 website",
+  "type": "project",
+  "homepage": "https://www.publicwhip.org.uk/",
+  "require": {
+    "php": ">=7.2",
+    "ext-pdo": "*",
+    "slim/slim": "^3",
+    "psr/log": "^1",
+    "twig/twig": "^2",
+    "slim/twig-view": "^2",
+    "monolog/monolog": "^1.24",
+    "php-di/php-di": "^6.0",
+    "php-di/slim-bridge": "^2.0",
+    "psr/http-message": "^1.0",
+    "psr/container": "^1",
+    "slim/csrf": "^0.5",
+    "slim/flash": "^0.1",
+    "maximebf/debugbar": "^1.15",
+    "swiftmailer/swiftmailer": "^5.4",
+    "illuminate/database": "^5.1",
+    "illuminate/events": "^5.1",
+    "illuminate/container": "^5.8",
+    "illuminate/support": "^5.8",
+    "illuminate/contracts": "^5.8",
+    "slim/http-cache": "^0.4.0",
+    "erusev/parsedown": "^1.7"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^8",
+    "roave/security-advisories": "dev-master",
+    "phpstan/phpstan-strict-rules": "^0.11",
+    "phpmd/phpmd": "^2",
+    "maglnet/composer-require-checker": "^1",
+    "phpro/grumphp": "^0.15",
+    "phpstan/phpstan": "^0.11",
+    "sensiolabs/security-checker": "^5",
+    "squizlabs/php_codesniffer": "^3",
+    "infection/infection": "^0.12",
+    "sebastian/phpcpd": "^4",
+    "jakub-onderka/php-parallel-lint": "^1.0"
+  },
+  "scripts": {
+    "style": "phpcs --standard=./qaTools/phpcs.xml",
+    "test": "phpunit",
+    "format-code": "php-cs-fixer fix --allow-risky=yes",
+    "phpstan": "phpstan analyse -l 6 -c qaTools/phpstan.neon src"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Richard Bairwell",
       "email": "team@publicwhip.org.uk"
-    },
-    "autoload": {
-        "psr-4": {
-            "PublicWhip\\": "src/"
-        }
-    },
-    "minimum-stability": "stable"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/publicwhip/publicwhipv2/issues",
+    "docs": "https://github.com/publicwhip/publicwhip/tree/master/docs",
+    "email": "team@publicwhip.org.uk"
+  },
+  "autoload": {
+    "psr-4": {
+      "PublicWhip\\": "src/"
+    }
+  },
+  "minimum-stability": "stable"
 }

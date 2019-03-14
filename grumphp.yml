@@ -23,7 +23,7 @@ parameters:
             level: 7
             ignore_patterns: ['web','database','docker','cache','logs','.phpstorm.meta.php','NotFoundHandler.php']
         phpversion:
-            project: '7.3'
+            project: '7.2'
         phpunit:
           config_file: ./qaTools/phpunit.xml
         securitychecker: ~

@@ -20,11 +20,25 @@ use Slim\HttpCache\CacheProvider;
  */
 class DebugBarController
 {
-
+    /**
+     * @var DebuggerProviderInterface $debuggerProvider
+     */
     private $debuggerProvider;
+    /**
+     * @var LoggerInterface $logger
+     */
     private $logger;
+    /**
+     * @var CacheProvider $cacheProvider
+     */
     private $cacheProvider;
 
+    /**
+     * DebugBarController constructor.
+     * @param DebuggerProviderInterface $debuggerProvider
+     * @param LoggerInterface $logger
+     * @param CacheProvider $cacheProvider
+     */
     public function __construct(
         DebuggerProviderInterface $debuggerProvider,
         LoggerInterface $logger,
