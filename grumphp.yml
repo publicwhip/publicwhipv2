@@ -4,12 +4,12 @@ parameters:
     tasks:
         composer: ~
         composer_require_checker:
-            config_file: ./qaTools/composerRequireCheckWhitelist.json
+            config_file: ./composerRequireCheckWhitelist.json
         file_size:
             max_size: 10M
             ignore_patterns: ['database','docker','cache','logs']
         phpcs:
-            standard: ./qaTools/phpcs.xml
+            standard: ./phpcs.xml
             ignore_patterns: ['web','database','docker','cache','logs','.phpstorm.meta.php']
         phplint: ~
         phpmd:
@@ -17,15 +17,15 @@ parameters:
                 - /^src\/(.*)/
                 - /^tests\/(.*)/
             ruleset:
-                - ./qaTools/phpmd.xml
+                - ./phpmd.xml
         phpstan:
-            configuration: ./qaTools/phpstan.neon
+            configuration: ./phpstan.neon
             level: 7
             ignore_patterns: ['web','database','docker','cache','logs','.phpstorm.meta.php','NotFoundHandler.php']
         phpversion:
             project: '7.2'
         phpunit:
-          config_file: ./qaTools/phpunit.xml
+          config_file: ./phpunit.xml
         securitychecker: ~
         phpcpd:
             directory: '.'

@@ -37,12 +37,12 @@ If you use PHPStorm as well, you may find going to:
 - Mac: PHPStorm->Preferences->Editor->Inspections->(Cog)->Import Profile
 - Windows: File->Settings->Editor->Inspections->(Cog)->Import Profile
 
-and importing `qaTools/phpStormInspections.xml` and
+and importing `phpStormInspections.xml` and
 
 - Mac: PHPStorm->Preferences->Editor->Code Style->(Cog)->Import Scheme->IntelliJ IDEA code style XML
 - Windows: File->Settings->Editor->Inspections->(Cog)->Import Scheme->IntelliJ IDEA code style XML
 
-and then importing `qaTools/phpStormCodeStyle.xml` to help.
+and then importing `phpStormCodeStyle.xml` to help.
 
 Other IDEs will be able to make use of the `.editorconfig` file in the root folder to help.
 
