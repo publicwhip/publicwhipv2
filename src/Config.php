@@ -11,6 +11,7 @@ use Parsedown;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use PublicWhip\Providers\DatabaseProvider;
 use PublicWhip\Providers\DatabaseProviderInterface;
@@ -21,6 +22,8 @@ use PublicWhip\Providers\HydratorProvider;
 use PublicWhip\Providers\HydratorProviderInterface;
 use PublicWhip\Providers\MailerProvider;
 use PublicWhip\Providers\MailerProviderInterface;
+use PublicWhip\Providers\WikiParserProvider;
+use PublicWhip\Providers\WikiParserProviderInterface;
 use PublicWhip\Services\DivisionService;
 use PublicWhip\Services\DivisionServiceInterface;
 use PublicWhip\Web\ErrorHandlers\ErrorHandler;
@@ -71,7 +74,8 @@ class Config
             RouterInterface::class => get('router'),
             // setup request interface to point to Slim's already existing request
             RequestInterface::class => get('request'),
-            // setup response interface to point to SLim's already existing response
+            ServerRequestInterface::class => get('request'),
+            // setup response interface to point to Slim's already existing response
             ResponseInterface::class => get('response'),
             // setup a CSRF guard
             Guard::class => create(Guard::class),
@@ -119,7 +123,7 @@ class Config
                 ->method('addToDebugger', get(DebuggerProviderInterface::class)),
             DebuggerProviderInterface::class => create(DebuggerProvider::class)
                 ->constructor(get('settings.debug')),
-            HydratorProviderInterface::class => autowire(HydratorProvider::class),
+            WikiParserProviderInterface::class => autowire(WikiParserProvider::class),
             /**
              * Services.
              */

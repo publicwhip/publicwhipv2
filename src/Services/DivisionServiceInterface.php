@@ -6,7 +6,7 @@ namespace PublicWhip\Services;
 use Psr\Log\LoggerInterface;
 use PublicWhip\Entities\DivisionEntity;
 use PublicWhip\Providers\DatabaseProviderInterface;
-use PublicWhip\Providers\HydratorProviderInterface;
+use PublicWhip\Providers\WikiParserProviderInterface;
 use ReflectionException;
 
 /**
@@ -20,14 +20,13 @@ interface DivisionServiceInterface
 {
     /**
      * DivisionService constructor.
-     *
-     * @param DatabaseProviderInterface $databaseProvider The database system.
-     * @param HydratorProviderInterface $hydrator Our entity hydrator.
-     * @param LoggerInterface $logger A logger.
+     * @param DatabaseProviderInterface $databaseProvider
+     * @param WikiParserProviderInterface $wikiParser
+     * @param LoggerInterface $logger
      */
     public function __construct(
         DatabaseProviderInterface $databaseProvider,
-        HydratorProviderInterface $hydrator,
+        WikiParserProviderInterface $wikiParser,
         LoggerInterface $logger
     );
 
@@ -37,6 +36,14 @@ interface DivisionServiceInterface
      * @return string
      */
     public function getNewestDivisionDate(): string;
+
+    /**
+     * Find a division by its numerical id.
+     * @param int $divisionId Numerical id of the division.
+     *
+     * @return DivisionEntity|null
+     */
+    public function findByDivisionId(int $divisionId) : ?DivisionEntity;
 
     /**
      * Find a division by the house, date and division number.

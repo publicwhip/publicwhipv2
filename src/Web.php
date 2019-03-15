@@ -81,6 +81,7 @@ class Web extends App
             '/divisions',
             function (App $app) {
                 $app->get('/', [DivisionController::class, 'indexAction']);
+                $app->get('/{divisionId:[0-9]+}/', [DivisionController::class, 'showDivisionById']);
                 $app->get(
                     '/' .
                     '{house:commons|lords|scotland}/' .
