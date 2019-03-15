@@ -24,7 +24,7 @@ All pull requests must adhere to the
 No `grumPHP` tests should fail: you can check this at any time by using `\vendor\bin\grumphp run`
 (or on Windows: `vendor\bin\grumphp.bat run`);
 
-Yoda conditions should be used. Along with the PHP Code Sniffer configuration in `qaTools`, there is also a
+Yoda conditions should be used. Along with the PHP Code Sniffer configuration in `php_cs.xml`, there is also a
 PHPStorm coding style and inspections configuration file.
 
 ## Unit Testing

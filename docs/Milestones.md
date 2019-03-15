@@ -3,10 +3,6 @@
 [Jump to Completed Milestones](#completed).
 
 ## Planned Milestones (in planning order)
-    
-* 0.4 - Get accurate information about Divisions showing: Estimate 1-2 days
-
-    Division motion text is stored in a custom 'wiki' format which needs to be parsed.
 
 * 0.4.5 - Create basic division editing system (with no authentication) : Estimate 3-4 days
 
@@ -51,13 +47,21 @@
 
 * 1.5 - Add new import/export system. Estimate 1 week.
 * 2.0 (?) - Remove v1 of the website.
+
+* 2.1 - Move away from the [parliamentary parser](http://parser.theyworkforyou.com/)
+       So we can retrieve division information faster (as per [CommonsVotes](https://commonsvotes.digiminster.com/))
  
 ## <a name="completed">Completed Milestones</a> (in recently completed order)
 
-* 0.3.1 - Small fixes.
+* 0.4 - Get accurate information about Divisions showing: Estimate 1-2 days. DONE - 2019-03-15
+
+    Division motion text is stored in a custom 'wiki' format which needs to be parsed.
+    
+* 0.3.1 - Small fixes. DONE - 2019-03-14
     
     Added continuous integration settings, missing database tables (for policies), added planned
-    milestones, fix indentation in composer.json
+    milestones, fix indentation in composer.json.
+    
 * 0.3 - Prepare for upload to Github. Estimate 1 day. DONE - 2019-03-12
 
     The system should present a basic styled POC (proof-of-concept) website with

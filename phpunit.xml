@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<phpunit bootstrap="../tests/bootstrap.php" colors="true" forceCoversAnnotation="true">
+<phpunit bootstrap="./tests/bootstrap.php" colors="true" forceCoversAnnotation="true">
     <testsuites>
         <testsuite name="Tests">
-            <directory suffix=".php">../tests</directory>
+            <directory suffix=".php">./tests</directory>
         </testsuite>
     </testsuites>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">../src</directory>
+            <directory suffix=".php">./src</directory>
             <exclude>
-                <directory suffix="Interface.php">../src</directory>
+                <directory suffix="Interface.php">./src</directory>
             </exclude>
         </whitelist>
     </filter>

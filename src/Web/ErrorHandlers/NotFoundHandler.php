@@ -28,11 +28,11 @@ class NotFoundHandler extends NotFound
         $this->debuggerProvider = $debuggerProvider;
     }
 
-    // phpcs:disable -- Slim currently has the wrong typehint on this method. Disabled CodeSniffer for now
 
     /**
      * Return a response for text/html content not found
      *
+     * phpcs:disable -- Slim currently has the wrong typehint on this method. Disabled CodeSniffer for now
      * @codingStandardsIgnoreStart
      * @param ServerRequestInterface $request The most recent Request object
      *
