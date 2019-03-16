@@ -12,26 +12,25 @@ use Twig\TwigFunction;
  * Class DebuggerTwigExtension.
  *
  * Adds the debug bar to twig.
- *
- * @package PublicWhip\Providers
  */
-class DebuggerTwigExtension extends AbstractExtension
+final class DebuggerTwigExtension extends AbstractExtension
 {
 
     /**
-     * @var UriInterface $uri
+     * @var UriInterface $uri Our current url.
      */
     private $uri;
 
     /**
-     * @var DebuggerProviderInterface $debugger
+     * @var DebuggerProviderInterface $debugger The debugger.
      */
     private $debugger;
 
     /**
      * DebuggerTwigExtension constructor.
-     * @param RequestInterface $request
-     * @param DebuggerProviderInterface $debugger
+     *
+     * @param RequestInterface $request The request.
+     * @param DebuggerProviderInterface $debugger The debugger.
      */
     public function __construct(RequestInterface $request, DebuggerProviderInterface $debugger)
     {
@@ -41,6 +40,7 @@ class DebuggerTwigExtension extends AbstractExtension
     }
 
     /**
+     * Get the base url.
      * @return string
      */
     public function baseUrlFunction(): string
@@ -52,7 +52,8 @@ class DebuggerTwigExtension extends AbstractExtension
     }
 
     /**
-     * @return array
+     * Get the twig functions
+     * @return TwigFunction[]
      */
     public function getFunctions(): array
     {
@@ -63,6 +64,7 @@ class DebuggerTwigExtension extends AbstractExtension
     }
 
     /**
+     * Get the debug header.
      * @return string
      */
     public function debugHeadFunction(): string
@@ -71,6 +73,7 @@ class DebuggerTwigExtension extends AbstractExtension
     }
 
     /**
+     * Get the debug bar main body.
      * @return string
      */
     public function debugBarFunction(): string

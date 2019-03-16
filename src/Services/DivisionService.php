@@ -3,10 +3,11 @@ declare(strict_types=1);
 
 namespace PublicWhip\Services;
 
-use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
 use PublicWhip\Entities\DivisionEntity;
 use PublicWhip\Exceptions\Services\BadDatabaseReturnException;
+use PublicWhip\Factories\DateTimeFactoryInterface;
+use PublicWhip\Factories\EntityFactoryInterface;
 use PublicWhip\Providers\DatabaseProviderInterface;
 use PublicWhip\Providers\WikiParserProviderInterface;
 
@@ -15,41 +16,56 @@ use PublicWhip\Providers\WikiParserProviderInterface;
  *
  * Reads/writes divisions.
  *
- * @package PublicWhip\Services
  */
 final class DivisionService implements DivisionServiceInterface
 {
 
     /**
-     * @var DatabaseProviderInterface $databaseProvider
+     * @var DatabaseProviderInterface $databaseProvider The database layer.
      */
     private $databaseProvider;
 
     /**
-     * @var WikiParserProviderInterface $hydrator
+     * @var WikiParserProviderInterface $wikiParser The wiki code parser.
      */
     private $wikiParser;
 
     /**
-     * @var LoggerInterface $logger
+     * @var LoggerInterface $logger The logger.
      */
     private $logger;
 
+    /**
+     * @var EntityFactoryInterface The entity factory.
+     */
+    private $entityFactory;
+
+    /**
+     * @var DateTimeFactoryInterface DateTime factory.
+     */
+    private $dateTimeFactory;
 
     /**
      * DivisionService constructor.
-     * @param DatabaseProviderInterface $databaseProvider
-     * @param WikiParserProviderInterface $wikiParser
-     * @param LoggerInterface $logger
+     *
+     * @param DatabaseProviderInterface $databaseProvider Database connection layer.
+     * @param EntityFactoryInterface $entityFactory Entity factory.
+     * @param DateTimeFactoryInterface $dateTimeFactory Date time factory.
+     * @param WikiParserProviderInterface $wikiParser Wiki parser.
+     * @param LoggerInterface $logger Logger.
      */
     public function __construct(
         DatabaseProviderInterface $databaseProvider,
+        EntityFactoryInterface $entityFactory,
+        DateTimeFactoryInterface $dateTimeFactory,
         WikiParserProviderInterface $wikiParser,
         LoggerInterface $logger
-    ) {
+    )
+    {
         $this->databaseProvider = $databaseProvider;
+        $this->entityFactory = $entityFactory;
+        $this->dateTimeFactory = $dateTimeFactory;
         $this->wikiParser = $wikiParser;
-
         $this->logger = $logger;
     }
 
@@ -65,6 +81,7 @@ final class DivisionService implements DivisionServiceInterface
 
     /**
      * Find a division by its numerical id.
+     *
      * @param int $divisionId Numerical id of the division.
      *
      * @return DivisionEntity|null
@@ -92,58 +109,30 @@ final class DivisionService implements DivisionServiceInterface
     }
 
     /**
-     * Find a division by the house, date and division number.
-     *
-     * @param string $house Name of the house - probably 'commons','lords' or 'scotland'
-     * @param string $date Date in YYYY-MM-DD of the division.
-     * @param int $divisionNumber Number of the division.
-     *
-     * @return DivisionEntity|null Entity if found.
-     */
-    public function findByHouseDateAndNumber(string $house, string $date, int $divisionNumber): ?DivisionEntity
-    {
-        /**
-         * Get the basic division data.
-         *
-         * @var object|null $basicDivision
-         */
-        $basicDivision = $this->databaseProvider->table('pw_division')
-            ->where('division_date', '=', $date)
-            ->where('division_number', '=', $divisionNumber)
-            ->where('house', '=', $house)
-            ->first();
-        if (null === $basicDivision) {
-            $this->logger->debug(
-                __METHOD__ . ': Did not find in {house} date {date} {divisionNumber}',
-                [
-                    'house' => $house,
-                    'date' => $date,
-                    'divisionNumber' => $divisionNumber
-                ]
-            );
-            return null;
-        }
-        return $this->buildDivisionEntityFromDivisionTable($basicDivision);
-    }
-
-    /**
      * Build/fill out a division and create a division entity.
      *
-     * @param object $basicDivision
+     * This is a bit of a mess as it needs to reverse engineer whatever PublicWhip v1
+     * has done in the database.
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
+     * @param object $basicDivision A division object as returned from the database.
+     *
      * @return DivisionEntity
      *
      * @throws BadDatabaseReturnException
      */
     private function buildDivisionEntityFromDivisionTable(object $basicDivision): DivisionEntity
     {
-        if (!property_exists($basicDivision, 'division_id') ||
-            !property_exists($basicDivision, 'division_date') ||
-            !property_exists($basicDivision, 'division_number') ||
-            !property_exists($basicDivision, 'source_url') ||
-            !property_exists($basicDivision, 'motion') ||
-            !property_exists($basicDivision, 'division_name') ||
-            !property_exists($basicDivision, 'debate_url') ||
-            !property_exists($basicDivision, 'house')) {
+        if (!property_exists($basicDivision, 'division_id')
+            || !property_exists($basicDivision, 'division_date')
+            || !property_exists($basicDivision, 'division_number')
+            || !property_exists($basicDivision, 'source_url')
+            || !property_exists($basicDivision, 'motion')
+            || !property_exists($basicDivision, 'division_name')
+            || !property_exists($basicDivision, 'debate_url')
+            || !property_exists($basicDivision, 'house')
+        ) {
             throw new BadDatabaseReturnException('Not a division');
         }
         /**
@@ -155,8 +144,8 @@ final class DivisionService implements DivisionServiceInterface
             (string)$basicDivision->motion
         );
         $builtData = [
-            'id' => (int)$basicDivision->division_id,
-            'date' => DateTimeImmutable::createFromFormat('!Y-m-d', $basicDivision->division_date),
+            'divisionId' => (int)$basicDivision->division_id,
+            'date' => $this->dateTimeFactory->dateTimeImmutableFromYyyyMmDd($basicDivision->division_date),
             'number' => (int)$basicDivision->division_number,
             'sourceUrl' => (string)$basicDivision->source_url,
             'motionText' => $this->wikiParser->cleanHtml($motionText),
@@ -179,10 +168,10 @@ final class DivisionService implements DivisionServiceInterface
             ->where('division_id', '=', $basicDivision->division_id)
             ->first();
         if ($voteInformation) {
-            if (!property_exists($voteInformation, 'rebellions') ||
-                !property_exists($voteInformation, 'turnout') ||
-                !property_exists($voteInformation, 'possible_turnout') ||
-                !property_exists($voteInformation, 'aye_majority')
+            if (!property_exists($voteInformation, 'rebellions')
+                || !property_exists($voteInformation, 'turnout')
+                || !property_exists($voteInformation, 'possible_turnout')
+                || !property_exists($voteInformation, 'aye_majority')
             ) {
                 throw new BadDatabaseReturnException('Not a divinfo');
             }
@@ -225,6 +214,41 @@ final class DivisionService implements DivisionServiceInterface
         // General tidy up.
         $builtData['motionTitle'] = trim(strip_tags($builtData['motionTitle']));
         $builtData['motionTitle'] = str_replace(' &#8212; ', ' - ', $builtData['motionTitle']);
-        return DivisionEntity::buildFromArray($builtData);
+        return $this->entityFactory->division($builtData);
+    }
+
+    /**
+     * Find a division by the house, date and division number.
+     *
+     * @param string $house Name of the house - probably 'commons','lords' or 'scotland'
+     * @param string $date Date in YYYY-MM-DD of the division.
+     * @param int $divisionNumber Number of the division.
+     *
+     * @return DivisionEntity|null Entity if found.
+     */
+    public function findByHouseDateAndNumber(string $house, string $date, int $divisionNumber): ?DivisionEntity
+    {
+        /**
+         * Get the basic division data.
+         *
+         * @var object|null $basicDivision
+         */
+        $basicDivision = $this->databaseProvider->table('pw_division')
+            ->where('division_date', '=', $date)
+            ->where('division_number', '=', $divisionNumber)
+            ->where('house', '=', $house)
+            ->first();
+        if (null === $basicDivision) {
+            $this->logger->debug(
+                __METHOD__ . ': Did not find in {house} date {date} {divisionNumber}',
+                [
+                    'house' => $house,
+                    'date' => $date,
+                    'divisionNumber' => $divisionNumber
+                ]
+            );
+            return null;
+        }
+        return $this->buildDivisionEntityFromDivisionTable($basicDivision);
     }
 }

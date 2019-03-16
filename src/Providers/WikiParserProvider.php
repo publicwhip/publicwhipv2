@@ -9,7 +9,9 @@ use PublicWhip\Exceptions\Providers\WikiFailedRegExp;
 /**
  * Class WikiParserProvider.
  *
- * @package PublicWhip\Providers
+ * Turn off all warnings as this code is a bit of a mess, even though it's been tidied up since v1.
+ *
+ * @SuppressWarnings(PHPMD)
  */
 final class WikiParserProvider implements WikiParserProviderInterface
 {
@@ -34,10 +36,10 @@ final class WikiParserProvider implements WikiParserProviderInterface
      */
     private $logger;
 
-
     /**
      * WikiParserProvider constructor.
-     * @param LoggerInterface $logger
+     *
+     * @param LoggerInterface $logger Logger.
      */
     public function __construct(LoggerInterface $logger)
     {
@@ -46,59 +48,22 @@ final class WikiParserProvider implements WikiParserProviderInterface
 
     /**
      * Get the division title.
+     *
      * @param string $wiki The wiki text.
      * @param string $default Default title to return.
+     *
      * @return string
      */
     public function parseDivisionTitle(string $wiki, string $default): string
     {
+        if ('' === $wiki) {
+            return $default;
+        }
         if (preg_match('/--- DIVISION TITLE ---(.*)--- MOTION EFFECT/', $wiki, $matches)) {
+            $this->logger->debug(sprintf('Parsed wiki title %s', $wiki));
             return $matches[1];
         }
-        return $default;
-    }
-
-    /**
-     * Get the motion text from the wiki - suitable for editing.
-     * @param string $wiki
-     * @param string $default
-     * @return string
-     */
-    public function parseMotionTextForEdit(string $wiki, string $default): string
-    {
-        if (preg_match('/--- MOTION EFFECT ---(.*)--- COMMENT/s', $wiki, $matches)) {
-            $text = $matches[1];
-            $text = preg_replace(
-                "/<p\b.*?class=\"italic\".*?>(.*)<\/p>/",
-                '<p><i>\\1</i></p>',
-                $text
-            );
-            if (null === $text) {
-                throw new WikiFailedRegExp(
-                    sprintf(
-                        'Failed with %s',
-                        array_flip(get_defined_constants(true)['pcre'])[preg_last_error()]
-                    )
-                );
-            }
-            $text = preg_replace(
-                "/<p\b.*?class=\"indent\".*?>(.*)<\/p>/",
-                '<blockquote>\\1</blockquote>',
-                $text
-            );
-            if (null === $text) {
-                throw new WikiFailedRegExp(
-                    sprintf(
-                        'Failed with %s',
-                        array_flip(get_defined_constants(true)['pcre'])[preg_last_error()]
-                    )
-                );
-            }
-            if (!is_string($text)) {
-                throw new WikiFailedRegExp('Expected string');
-            }
-            return $text;
-        }
+        $this->logger->debug(sprintf('Could not parse wiki title %s', $wiki));
         return $default;
     }
 
@@ -107,12 +72,16 @@ final class WikiParserProvider implements WikiParserProviderInterface
      *
      * @see https://github.com/publicwhip/publicwhip/blob/a4899135b6957abae85da3fc93c4cc3cf9e4fbc1/website/wiki.inc#L112
      *
-     * @param string $wiki
-     * @param string $default
+     * @param string $wiki The text to parse.
+     * @param string $default The text to return if it's not a valid wiki text.
+     *
      * @return string
      */
     public function parseMotionText(string $wiki, string $default): string
     {
+        if ('' === $wiki) {
+            return $default;
+        }
         $motion = $this->parseMotionTextForEdit($wiki, $default);
         if (!preg_match('/<\/.*?>/', $motion)) {
             $motionLines = explode("\n", $motion);
@@ -227,11 +196,7 @@ final class WikiParserProvider implements WikiParserProviderInterface
 
                 $res[] = $motionLine;
 
-                if (0 === $binUL) {
-                    $res[] = '</p>';
-                } else {
-                    $res[] = '</li>';
-                }
+                $res[] = (0 === $binUL) ? '</p>' : '</li>';
             }
             if ($binUL) {
                 $res[] = '</ul>';
@@ -239,12 +204,66 @@ final class WikiParserProvider implements WikiParserProviderInterface
             $motion = implode("\n", $res);
         }
         $motion = $this->cleanHtml($motion);
+        $this->logger->debug(sprintf('Returning motion %s', $motion));
+
         return $motion;
     }
 
     /**
+     * Get the motion text from the wiki - suitable for editing.
+     *
+     * @param string $wiki Wiki text to parse.
+     * @param string $default If the wiki text was not valid, the text to be returned instead.
+     *
+     * @return string
+     */
+    public function parseMotionTextForEdit(string $wiki, string $default): string
+    {
+        if ('' === $wiki) {
+            return $default;
+        }
+        if (!preg_match('/--- MOTION EFFECT ---(.*)--- COMMENT/s', $wiki, $matches)) {
+            $this->logger->debug(sprintf('Could not parse motion text %s', $wiki));
+            return $default;
+        }
+        $text = $matches[1];
+        $text = preg_replace(
+            "/<p\b.*?class=\"italic\".*?>(.*)<\/p>/",
+            '<p><i>\\1</i></p>',
+            $text
+        );
+        if (null === $text) {
+            throw new WikiFailedRegExp(
+                sprintf(
+                    'Failed with %s',
+                    array_flip(get_defined_constants(true)['pcre'])[preg_last_error()]
+                )
+            );
+        }
+        $text = preg_replace(
+            "/<p\b.*?class=\"indent\".*?>(.*)<\/p>/",
+            '<blockquote>\\1</blockquote>',
+            $text
+        );
+        if (null === $text) {
+            throw new WikiFailedRegExp(
+                sprintf(
+                    'Failed with %s',
+                    array_flip(get_defined_constants(true)['pcre'])[preg_last_error()]
+                )
+            );
+        }
+        if (!\is_string($text)) {
+            throw new WikiFailedRegExp('Expected string');
+        }
+        return $text;
+    }
+
+    /**
      * Cleans the HTML.
-     * @param string $html
+     *
+     * @param string $html The html to clean.
+     *
      * @return string
      */
     public function cleanHtml(string $html): string
@@ -256,10 +275,12 @@ final class WikiParserProvider implements WikiParserProviderInterface
      * Takes our safe html and converts it to normal html.
      *
      * @see https://github.com/publicwhip/publicwhip/blob/a4899135b6957abae85da3fc93c4cc3cf9e4fbc1/website/pretty.inc#L418
-     * @param string $html
+     *
+     * @param string $html The 'safe' html to convert back to normal html.
+     *
      * @return string
      */
-    public function safeHtmlToNormalHtml(string $html) : string
+    public function safeHtmlToNormalHtml(string $html): string
     {
         $patterns = [
             "/&amp;(#?[A-Za-z0-9]+?;)/",
@@ -284,7 +305,9 @@ final class WikiParserProvider implements WikiParserProviderInterface
      * Strips bad html.
      *
      * @see https://github.com/publicwhip/publicwhip/blob/a4899135b6957abae85da3fc93c4cc3cf9e4fbc1/website/pretty.inc#L313
-     * @param string $text
+     *
+     * @param string $text Text to strip unwanted html from.
+     *
      * @return string
      */
     public function stripBadHtml(string $text): string
@@ -336,7 +359,9 @@ final class WikiParserProvider implements WikiParserProviderInterface
      * Only keeps approved attributes of HTML.
      *
      * @see https://github.com/publicwhip/publicwhip/blob/a4899135b6957abae85da3fc93c4cc3cf9e4fbc1/website/pretty.inc#L334
-     * @param array $arr
+     *
+     * @param string[] $arr Html element and items to strip away.
+     *
      * @return string
      */
     public function filterHtmlAttributes(array $arr): string
@@ -388,8 +413,7 @@ final class WikiParserProvider implements WikiParserProviderInterface
 
         if ($noSpecial) {
             preg_match_all("/(?:$noSpecial)\s*=\s*\"[^\s\">]+\"/is", $attributes, $matches);
-            $prepared =
-                array_merge($prepared, str_replace('"', self::SAFE_QUOTE, $matches[0]));
+            $prepared = array_merge($prepared, str_replace('"', self::SAFE_QUOTE, $matches[0]));
             preg_match_all("/(?:$noSpecial)\s*=\s*'[^\s'>]+'/is", $attributes, $matches);
             $prepared = array_merge($prepared, $matches[0]);
             preg_match_all("/(?:$noSpecial)\s*=\s*[^\s>'\"][^\s>]*/is", $attributes, $matches);
@@ -397,8 +421,7 @@ final class WikiParserProvider implements WikiParserProviderInterface
         }
         if ($special) {
             preg_match_all("/(?:$special)\s*=\s*\"[^\"]*\"/is", $attributes, $matches);
-            $prepared =
-                array_merge($prepared, str_replace('"', self::SAFE_QUOTE, $matches[0]));
+            $prepared = array_merge($prepared, str_replace('"', self::SAFE_QUOTE, $matches[0]));
             preg_match_all("/(?:$special)\s*=\s*'[^']*'/is", $attributes, $matches);
             $prepared = array_merge($prepared, $matches[0]);
             preg_match_all("/(?:$special)\s*=\s*[^\s>'\"][^\s>]*/is", $attributes, $matches);

@@ -1,14 +1,34 @@
-.idea
-.php_cs.cache
+# We allow .idea to enable shared development on Jetbrains IDEs
+# but exclude the following user-specific stuff
+# Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+# ... generated files
+.idea/**/contentModel.xml
+# .. sensitive or high-churn files
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+.idea/**/dataSources.local.xml
+.idea/**/sqlDataSources.xml
+.idea/**/dynamic.xml
+.idea/**/uiDesigner.xml
+.idea/**/dbnavigator.xml
+.idea/httpRequests
+
+# We don't want the logs folder populated as the contents are local only.
 logs/*
-!logs/.gitkeep
 !logs/README.md
+# We don't want the cache folder populated as the contents are local only.
 cache/*
-!cache/.gitkeep
 !cache/README.md
-vendor/*
+# We don't want the qa folder populated as the results change too often.
 qa/*
-!qa/.gitkeep
 !qa/README.md
+# We don't want the following cache files stored as they are local only.
 .phpunit.result.cache
-!.gitkeep
+.php_cs.cache
+# We don't want vendor to accidentally make it into the repo.
+vendor/*

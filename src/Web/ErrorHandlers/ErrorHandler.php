@@ -3,25 +3,33 @@ declare(strict_types=1);
 
 namespace PublicWhip\Web\ErrorHandlers;
 
-use Exception;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use PublicWhip\Providers\DebuggerProviderInterface;
-use Slim\Handlers\Error;
+use Slim\Handlers\AbstractError;
+use Slim\Http\Body;
+use Throwable;
+use UnexpectedValueException;
 
 /**
- * Class ErrorHandler/
- * @package PublicWhip\Web\ErrorHandlers
+ * Class ErrorHandler.
+ *
+ * Mainly based straight of Slim's Error class for now.
+ *
  */
-class ErrorHandler extends Error
+final class ErrorHandler extends AbstractError
 {
+
     /**
-     * @var DebuggerProviderInterface $debuggerProvider
+     * @var DebuggerProviderInterface $debuggerProvider The debugger.
      */
     private $debuggerProvider;
 
     /**
      * Constructor.
-     * @param DebuggerProviderInterface $debuggerProvider
-     * @param bool $displayErrorDetails
+     *
+     * @param DebuggerProviderInterface $debuggerProvider The debugger.
+     * @param bool $displayErrorDetails Should we show error details. Should be false on production.
      */
     public function __construct(DebuggerProviderInterface $debuggerProvider, bool $displayErrorDetails)
     {
@@ -30,28 +38,70 @@ class ErrorHandler extends Error
     }
 
     /**
+     * Invoke error handler
+     *
+     * @param ServerRequestInterface $request The most recent Request object
+     * @param ResponseInterface $response The most recent Response object
+     * @param Throwable $throwable The caught Throwable object
+     *
+     * @return ResponseInterface
+     * @throws UnexpectedValueException
+     */
+    public function __invoke(
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        Throwable $throwable
+    ): ResponseInterface
+    {
+        $contentType = $this->determineContentType($request);
+        switch ($contentType) {
+            case 'application/json':
+                $output = $this->renderJsonErrorMessage($throwable);
+                break;
+
+            case 'text/html':
+                $output = $this->renderHtmlErrorMessage($throwable);
+                break;
+
+            default:
+                throw new UnexpectedValueException('Cannot render unknown content type ' . $contentType);
+        }
+
+        $this->writeToErrorLog($throwable);
+
+        /** @var resource $fopen */
+        $fopen = fopen('php://temp', 'rb+');
+        $body = new Body($fopen);
+        $body->write($output);
+
+        return $response->withStatus(500)
+            ->withHeader('Content-type', $contentType)
+            ->withBody($body);
+    }
+
+    /**
      * Render HTML error page
      *
-     * @param Exception $exception
+     * @param Throwable $throwable The thrown item.
      *
      * @return string
      */
-    protected function renderHtmlErrorMessage(Exception $exception): string
+    private function renderHtmlErrorMessage(Throwable $throwable): string
     {
         $title = 'PublicWhip Application Exception';
+        $html = '<p>A website error has occurred. Sorry for the temporary inconvenience.</p>';
+
         if ($this->displayErrorDetails) {
             $html = '<p>The application could not run because of the following exception:</p>';
             $html .= '<h2>Details</h2>';
-            $html .= $this->renderHtmlException($exception);
+            $html .= $this->renderHtmlExceptionOrError($throwable);
 
-            $previous = $exception->getPrevious();
-            while ($previous instanceof Exception) {
+            $previous = $throwable->getPrevious();
+            while ($previous instanceof Throwable) {
                 $html .= '<h2>Previous exception</h2>';
-                $html .= $this->renderHtmlException($previous);
+                $html .= $this->renderHtmlExceptionOrError($previous);
                 $previous = $previous->getPrevious();
             }
-        } else {
-            $html = '<p>A website error has occurred. Sorry for the temporary inconvenience.</p>';
         }
         $debugHead = $this->debuggerProvider->renderHead();
         $debugBar = $this->debuggerProvider->renderBar();
@@ -69,5 +119,82 @@ class ErrorHandler extends Error
         );
 
         return $output;
+    }
+
+    /**
+     * Render exception or error as HTML.
+     *
+     * @param Throwable $throwable The thrown item.
+     *
+     * @return string
+     */
+    protected function renderHtmlExceptionOrError(Throwable $throwable): string
+    {
+        $html = sprintf('<div><strong>Type:</strong> %s</div>', \get_class($throwable));
+
+        if ($throwable->getCode()) {
+            $html .= sprintf('<div><strong>Code:</strong> %s</div>', $throwable->getCode());
+        }
+
+        if ($throwable->getMessage()) {
+            $html .= sprintf(
+                '<div><strong>Message:</strong> %s</div>',
+                htmlentities($throwable->getMessage(), ENT_QUOTES)
+            );
+        }
+
+        if ($throwable->getFile()) {
+            $html .= sprintf('<div><strong>File:</strong> %s</div>', $throwable->getFile());
+        }
+
+        if ($throwable->getLine()) {
+            $html .= sprintf('<div><strong>Line:</strong> %s</div>', $throwable->getLine());
+        }
+
+        if ($throwable->getTraceAsString()) {
+            $html .= '<h2>Trace</h2>';
+            $html .= sprintf(
+                '<pre>%s</pre>',
+                htmlentities($throwable->getTraceAsString(), ENT_QUOTES)
+            );
+        }
+
+        return $html;
+    }
+
+    /**
+     * Render JSON error
+     *
+     * @param Throwable $throwable The thrown item.
+     *
+     * @return string
+     */
+    private function renderJsonErrorMessage(Throwable $throwable): string
+    {
+        $error = [
+            'message' => 'PublicWhip Application Error',
+        ];
+
+        if ($this->displayErrorDetails) {
+            $error['exception'] = [];
+
+            do {
+                $error['exception'][] = [
+                    'type' => \get_class($throwable),
+                    'code' => $throwable->getCode(),
+                    'message' => $throwable->getMessage(),
+                    'file' => $throwable->getFile(),
+                    'line' => $throwable->getLine(),
+                    'trace' => explode("\n", $throwable->getTraceAsString()),
+                ];
+                $throwable = $throwable->getPrevious();
+            } while ($throwable);
+        }
+
+        $encoded = json_encode($error, JSON_PRETTY_PRINT);
+        if (!\is_string($encoded)) {
+            $encoded = '[]';
+        }
+        return $encoded;
     }
 }

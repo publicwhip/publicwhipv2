@@ -4,21 +4,22 @@ declare(strict_types=1);
 namespace PublicWhip\Web\Controllers;
 
 use Psr\Http\Message\ResponseInterface;
-use PublicWhip\Model\Division;
 use PublicWhip\Services\DivisionServiceInterface;
 
 /**
  * Class PingController.
  *
  * Uptime health checks.
- * @package PublicWhip\Web\Controllers
+ *
  */
 class PingController
 {
 
     /**
      * Simple uptime check.
-     * @param ResponseInterface $response
+     *
+     * @param ResponseInterface $response The response to populate.
+     *
      * @return ResponseInterface
      */
     public function indexAction(ResponseInterface $response): ResponseInterface
@@ -28,18 +29,19 @@ class PingController
         return $response;
     }
 
-
     /**
      * Returns the date of the last division processed.
      *
-     * @param DivisionServiceInterface $divisionService
-     * @param ResponseInterface $response
+     * @param DivisionServiceInterface $divisionService The devision service.
+     * @param ResponseInterface $response The response to populate.
+     *
      * @return ResponseInterface
      */
     public function lastDivisionParsedAction(
         DivisionServiceInterface $divisionService,
         ResponseInterface $response
-    ): ResponseInterface {
+    ): ResponseInterface
+    {
         $body = $response->getBody();
         $body->write($divisionService->getNewestDivisionDate());
         return $response;

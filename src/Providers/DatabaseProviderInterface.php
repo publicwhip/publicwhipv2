@@ -12,81 +12,121 @@ use Illuminate\Database\Schema\Builder as SchemaBuilder;
 use Illuminate\Events\Dispatcher;
 
 /**
- * Interface DatabaseProviderInterface
- * @package PublicWhip\Providers
+ * Class DatabaseProvider.
  */
 interface DatabaseProviderInterface
 {
+
     /**
      * DatabaseProvider constructor.
-     * @param array $config
+     *
+     * @param string[] $config Configuration settings.
      */
     public function __construct(array $config);
 
     /**
-     * @param array $config
-     * @param string $name
+     * Add a new connection.
+     *
+     * @param string[] $config Configuration settings.
+     * @param string|null $name Name of the configuration.
+     *
+     * @return void
      */
-    public function addConnection(array $config, string $name = null);
+    public function addConnection(array $config, ?string $name = null): void;
 
     /**
-     * @param string $name
-     * @return Connection
+     * Set the event dispatcher.
+     *
+     * @param Dispatcher $dispatcher Dispatcher.
+     *
+     * @return void
      */
-    public function getConnection(string $name = null): Connection;
+    public function setEventDispatcher(Dispatcher $dispatcher): void;
 
     /**
-     * @param string $table
-     * @param Connection|null $connection
+     * Get the event dispatcher.
+     *
+     * @return Dispatcher|null
+     */
+    public function getEventDispatcher(): ?Dispatcher;
+
+    /**
+     * Get a table to start querying.
+     *
+     * @param string $table Name of the table.
+     * @param Connection|null $connection Connection to use.
+     *
      * @return QueryBuilder
      */
-    public function table(string $table, Connection $connection = null): QueryBuilder;
+    public function table(string $table, ?Connection $connection = null): QueryBuilder;
 
     /**
-     * @param Connection|null $connection
+     * Get a named connection.
+     *
+     * @param string|null $name Name of the connection (or null for default)
+     *
+     * @return Connection
+     */
+    public function getConnection(?string $name = null): Connection;
+
+    /**
+     * Get the schema builder.
+     *
+     * @param Connection|null $connection Connection to use.
+     *
      * @return SchemaBuilder
      */
-    public function schema(Connection $connection = null): SchemaBuilder;
+    public function schema(?Connection $connection = null): SchemaBuilder;
 
     /**
-     * @param string $model
+     * Get an eloquent model.
+     *
+     * @param string $model Name of the model.
+     *
      * @return mixed
      */
     public function query(string $model);
 
     /**
+     * Get the eloquent container.
+     *
      * @return Container
      */
     public function getContainer(): Container;
 
     /**
-     * @param Container $container
+     * Set the container.
+     *
+     * @param Container $container Set the eloquent container.
+     *
+     * @return void
      */
     public function setContainer(Container $container): void;
 
     /**
-     * @return null|Dispatcher
-     */
-    public function getEventDispatcher(): ?Dispatcher;
-
-    /**
-     * @param Dispatcher $dispatcher
-     */
-    public function setEventDispatcher(Dispatcher $dispatcher): void;
-
-    /**
-     * @param string $fetchMode
+     * Set the fetch mode.
+     *
+     * @param string $fetchMode Fetch mode.
+     *
+     *
      * @return DatabaseProviderInterface
      */
     public function setFetchMode(string $fetchMode): DatabaseProviderInterface;
 
     /**
+     * Get the database manager.
+     *
      * @return DatabaseManager
      */
     public function getDatabaseManager(): DatabaseManager;
 
     /**
-     * @param DebuggerProviderInterface $debugger
+     * Addable to a debugger.
+     *
+     * @param DebuggerProviderInterface $debugger Debugger to add.
+     *
+     * @return void
+     *
      * @throws DebugBarException
      */
     public function addToDebugger(DebuggerProviderInterface $debugger): void;

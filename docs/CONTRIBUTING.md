@@ -7,6 +7,7 @@ existing tables by `PW 2` must be able to be read/interpreted by `PW 1` unless i
 for example, password storage will probably not be backwards compatible but as long as `PW 2` users know to
 login via `PW 2` then that will be fine. It would not be acceptable for divisions to be unreadable by either
 system however.
+
 ## Pull Requests
 
 1. Fork the `PublicWhipV2` repository
@@ -20,11 +21,17 @@ pull request for each branch. This allows each feature or improvement to be revi
 
 All pull requests must adhere to the
 [PSR-12 standard](https://github.com/php-fig/fig-standards/blob/master/proposed/extended-coding-style-guide.md).
+and the included php_cs.xml file (which heavily uses the
+[Slevomat coding standard](https://github.com/slevomat/coding-standard)).
 
 No `grumPHP` tests should fail: you can check this at any time by using `\vendor\bin\grumphp run`
 (or on Windows: `vendor\bin\grumphp.bat run`);
 
-Yoda conditions should be used. Along with the PHP Code Sniffer configuration in `php_cs.xml`, there is also a
+Yoda conditions should be used.
+
+It is preferred to 'return early' than only have one return in a method.
+
+Along with the PHP Code Sniffer configuration in `php_cs.xml`, there is also a
 PHPStorm coding style and inspections configuration file.
 
 ## Unit Testing

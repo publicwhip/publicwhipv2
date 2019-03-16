@@ -16,34 +16,38 @@ use Slim\HttpCache\CacheProvider;
  *
  * Based off https://github.com/php-middleware/phpdebugbar .
  *
- * @package PublicWhip\Web\Controllers
  */
 class DebugBarController
 {
+
     /**
-     * @var DebuggerProviderInterface $debuggerProvider
+     * @var DebuggerProviderInterface $debuggerProvider The debugger.
      */
     private $debuggerProvider;
+
     /**
-     * @var LoggerInterface $logger
+     * @var LoggerInterface $logger The logger.
      */
     private $logger;
+
     /**
-     * @var CacheProvider $cacheProvider
+     * @var CacheProvider $cacheProvider Http caching system.
      */
     private $cacheProvider;
 
     /**
      * DebugBarController constructor.
-     * @param DebuggerProviderInterface $debuggerProvider
-     * @param LoggerInterface $logger
-     * @param CacheProvider $cacheProvider
+     *
+     * @param DebuggerProviderInterface $debuggerProvider The debugger itself.
+     * @param LoggerInterface $logger The logging system.
+     * @param CacheProvider $cacheProvider Our Http caching system.
      */
     public function __construct(
         DebuggerProviderInterface $debuggerProvider,
         LoggerInterface $logger,
         CacheProvider $cacheProvider
-    ) {
+    )
+    {
         $this->debuggerProvider = $debuggerProvider;
         $this->logger = $logger;
         $this->cacheProvider = $cacheProvider;
@@ -56,9 +60,10 @@ class DebugBarController
      *
      * The debug bar should only be enabled on Development environments anyway.
      *
-     * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
-     * @param string $filePath
+     * @param ServerRequestInterface $request The server request to populate a not found exception.
+     * @param ResponseInterface $response The response to populate.
+     * @param string $filePath The path requested.
+     *
      * @return ResponseInterface
      * @throws NotFoundException
      */
@@ -66,7 +71,8 @@ class DebugBarController
         ServerRequestInterface $request,
         ResponseInterface $response,
         string $filePath
-    ): ResponseInterface {
+    ): ResponseInterface
+    {
         $fullPathToFile = $this->debuggerProvider->getBasePath() . DIRECTORY_SEPARATOR . $filePath;
         $this->logger->debug('Fetching {file}', ['file' => $fullPathToFile]);
 
@@ -98,7 +104,7 @@ class DebugBarController
         /**
          * Get the content type, with more validation if we get something we don't recognise.
          */
-        $contentType = $this->getContentTypeByFileName($realpath);
+        $contentType = self::getContentTypeByFileName($realpath);
         if ('' === $contentType) {
             $this->logger->warning(
                 'Invalid attempt to access debugbar file {file}: unrecognised content type',
@@ -120,12 +126,14 @@ class DebugBarController
         return $this->cacheProvider->withExpires($response, time() + 60 * 60 * 6);
     }
 
-
     /**
-     * @param string $filename
+     * Get the content type of a file based on its extension.
+     *
+     * @param string $filename Name of the file to get the file type of.
+     *
      * @return string
      */
-    private function getContentTypeByFileName(string $filename): string
+    private static function getContentTypeByFileName(string $filename): string
     {
         $ext = pathinfo($filename, PATHINFO_EXTENSION);
         $map = [

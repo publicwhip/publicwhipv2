@@ -1,0 +1,1 @@
+Factories provide 'new' things upon request.

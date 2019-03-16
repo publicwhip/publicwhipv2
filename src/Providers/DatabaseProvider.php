@@ -12,7 +12,6 @@ use Illuminate\Database\Connection;
 use Illuminate\Database\Connectors\ConnectionFactory;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Schema\Builder as SchemaBuilder;
 use Illuminate\Events\Dispatcher;
@@ -21,7 +20,11 @@ use PDO;
 
 /**
  * Class DatabaseProvider.
- * @package PublicWhip\Providers
+ *
+ * We just really do the minimum to get Eloquent up and running, yet it's quite complex and lots
+ * of coupling.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 final class DatabaseProvider implements DatabaseProviderInterface
 {
@@ -32,7 +35,7 @@ final class DatabaseProvider implements DatabaseProviderInterface
     private const DEFAULT_CONNECTION_NAME = 'default';
 
     /**
-     * @var Container $container
+     * @var Container $container An Illuminate Container.
      */
     private $container;
 
@@ -43,7 +46,14 @@ final class DatabaseProvider implements DatabaseProviderInterface
 
     /**
      * DatabaseProvider constructor.
-     * @param array $config
+     *
+     * Turn off some PHPMD warnings as Eloquent requires static settings. As a Provider,
+     * this isn't too much of a problem.
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
+     *
+     * @param string[] $config Configuration settings.
+     *
      */
     public function __construct(array $config)
     {
@@ -64,18 +74,24 @@ final class DatabaseProvider implements DatabaseProviderInterface
         $this->addConnection($config);
 
         $this->setEventDispatcher(new Dispatcher($this->container));
-        Eloquent::setConnectionResolver($this->manager);
+        Model::setConnectionResolver($this->manager);
         $dispatcher = $this->getEventDispatcher();
-        if (null !== $dispatcher) {
-            Eloquent::setEventDispatcher($dispatcher);
+        if (null === $dispatcher) {
+            return;
         }
+
+        Model::setEventDispatcher($dispatcher);
     }
 
     /**
-     * @param array $config
-     * @param string $name
+     * Add a new connection.
+     *
+     * @param string[] $config Configuration settings.
+     * @param string|null $name Name of the configuration.
+     *
+     * @return void
      */
-    public function addConnection(array $config, string $name = null): void
+    public function addConnection(array $config, ?string $name = null): void
     {
         $name = $name ?: self::DEFAULT_CONNECTION_NAME;
         $connections = $this->container['config']['database.connections'];
@@ -84,7 +100,11 @@ final class DatabaseProvider implements DatabaseProviderInterface
     }
 
     /**
-     * @param Dispatcher $dispatcher
+     * Set the event dispatcher.
+     *
+     * @param Dispatcher $dispatcher Dispatcher.
+     *
+     * @return void
      */
     public function setEventDispatcher(Dispatcher $dispatcher): void
     {
@@ -92,7 +112,9 @@ final class DatabaseProvider implements DatabaseProviderInterface
     }
 
     /**
-     * @return null|Dispatcher
+     * Get the event dispatcher.
+     *
+     * @return Dispatcher|null
      */
     public function getEventDispatcher(): ?Dispatcher
     {
@@ -103,37 +125,49 @@ final class DatabaseProvider implements DatabaseProviderInterface
     }
 
     /**
-     * @param string $table
-     * @param Connection|null $connection
+     * Get a table to start querying.
+     *
+     * @param string $table Name of the table.
+     * @param Connection|null $connection Connection to use.
+     *
      * @return QueryBuilder
      */
-    public function table(string $table, Connection $connection = null): QueryBuilder
+    public function table(string $table, ?Connection $connection = null): QueryBuilder
     {
         $connectionName = $connection ? $connection->getName() : self::DEFAULT_CONNECTION_NAME;
         return $this->getConnection($connectionName)->table($table);
     }
 
     /**
-     * @param string $name
+     * Get a named connection.
+     *
+     * @param string|null $name Name of the connection (or null for default)
+     *
      * @return Connection
      */
-    public function getConnection(string $name = null): Connection
+    public function getConnection(?string $name = null): Connection
     {
         return $this->manager->connection($name);
     }
 
     /**
-     * @param Connection|null $connection
+     * Get the schema builder.
+     *
+     * @param Connection|null $connection Connection to use.
+     *
      * @return SchemaBuilder
      */
-    public function schema(Connection $connection = null): SchemaBuilder
+    public function schema(?Connection $connection = null): SchemaBuilder
     {
         $connectionName = $connection ? $connection->getName() : self::DEFAULT_CONNECTION_NAME;
         return $this->getConnection($connectionName)->getSchemaBuilder();
     }
 
     /**
-     * @param string $model
+     * Get an eloquent model.
+     *
+     * @param string $model Name of the model.
+     *
      * @return mixed
      */
     public function query(string $model)
@@ -145,6 +179,8 @@ final class DatabaseProvider implements DatabaseProviderInterface
     }
 
     /**
+     * Get the eloquent container.
+     *
      * @return Container
      */
     public function getContainer(): Container
@@ -153,7 +189,11 @@ final class DatabaseProvider implements DatabaseProviderInterface
     }
 
     /**
-     * @param Container $container
+     * Set the container.
+     *
+     * @param Container $container Set the eloquent container.
+     *
+     * @return void
      */
     public function setContainer(Container $container): void
     {
@@ -161,7 +201,10 @@ final class DatabaseProvider implements DatabaseProviderInterface
     }
 
     /**
-     * @param string $fetchMode
+     * Set the fetch mode.
+     *
+     * @param string $fetchMode Fetch mode.
+     *
      * @return DatabaseProviderInterface
      */
     public function setFetchMode(string $fetchMode): DatabaseProviderInterface
@@ -171,6 +214,8 @@ final class DatabaseProvider implements DatabaseProviderInterface
     }
 
     /**
+     * Get the database manager.
+     *
      * @return DatabaseManager
      */
     public function getDatabaseManager(): DatabaseManager
@@ -181,7 +226,10 @@ final class DatabaseProvider implements DatabaseProviderInterface
     /**
      * Addable to a debugger.
      *
-     * @param DebuggerProviderInterface $debugger
+     * @param DebuggerProviderInterface $debugger Debugger to add.
+     *
+     * @return void
+     *
      * @throws DebugBarException
      */
     public function addToDebugger(DebuggerProviderInterface $debugger): void
