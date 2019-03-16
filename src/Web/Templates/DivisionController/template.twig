@@ -6,9 +6,16 @@
             <div class="pure-menu pure-menu-horizontal">
                 <ul class="pure-menu-list">
                     <li class="pure-menu-item"><a href="/divisions/" class="pure-menu-link">All divisions</a></li>
-                    <li class="pure-menu-item"><a href="/divisions/commons/2019-02-12/325/" class="pure-menu-link">
+                    <li class="pure-menu-item">
+                        <a href="{{ path_for(
+                            'divisionByHouseDateNumber',
+                            { 'house':'commons','date':'2019-02-12','divisionNumber':'325' }) }}"
+                           class="pure-menu-link">
                             Wiki edited division</a></li>
-                    <li class="pure-menu-item"><a href="/divisions/commons/2019-03-06/353/" class="pure-menu-link">
+                    <li class="pure-menu-item"><a href="{{ path_for(
+                            'divisionByHouseDateNumber',
+                            { 'house':'commons','date':'2019-03-06','divisionNumber':'353' }) }}"
+                                                  class="pure-menu-link">
                             Ordinary division</a></li>
 
                 </ul>

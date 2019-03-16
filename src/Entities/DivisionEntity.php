@@ -7,15 +7,14 @@ use DateTimeImmutable;
 
 /**
  * Class DivisionEntity
- * @package PublicWhip\Entities
  */
-final class DivisionEntity extends AbstractEntity
+final class DivisionEntity
 {
 
     /**
      * @var int Id of the division.
      */
-    private $id;
+    private $divisionId;
 
     /**
      * @var DateTimeImmutable
@@ -26,6 +25,7 @@ final class DivisionEntity extends AbstractEntity
      * @var int Number of the division.
      */
     private $number;
+
     /**
      * @var string Source of the division.
      */
@@ -82,14 +82,16 @@ final class DivisionEntity extends AbstractEntity
     private $ayeMajority;
 
     /**
+     * Get the division id.
      * @return int
      */
-    public function getId(): int
+    public function getDivisionId(): int
     {
-        return $this->id;
+        return $this->divisionId;
     }
 
     /**
+     * Get the date of the division.
      * @return DateTimeImmutable
      */
     public function getDate(): DateTimeImmutable
@@ -98,6 +100,7 @@ final class DivisionEntity extends AbstractEntity
     }
 
     /**
+     * Get the number of the division for this day.
      * @return int
      */
     public function getNumber(): int
@@ -106,6 +109,7 @@ final class DivisionEntity extends AbstractEntity
     }
 
     /**
+     * Get the source url.
      * @return string
      */
     public function getSourceUrl(): string
@@ -114,6 +118,7 @@ final class DivisionEntity extends AbstractEntity
     }
 
     /**
+     * Get the debate url.
      * @return string
      */
     public function getDebateUrl(): string
@@ -122,6 +127,7 @@ final class DivisionEntity extends AbstractEntity
     }
 
     /**
+     * Get the motion text.
      * @return string
      */
     public function getMotionText(): string
@@ -130,6 +136,7 @@ final class DivisionEntity extends AbstractEntity
     }
 
     /**
+     * Get the motion title.
      * @return string
      */
     public function getMotionTitle(): string
@@ -138,6 +145,7 @@ final class DivisionEntity extends AbstractEntity
     }
 
     /**
+     * Get the original (imported) motion text.
      * @return string
      */
     public function getOriginalMotionText(): string
@@ -146,13 +154,16 @@ final class DivisionEntity extends AbstractEntity
     }
 
     /**
+     * Get the original (imported) motion title.
      * @return string
      */
     public function getOriginalMotionTitle(): string
     {
         return $this->originalMotionTitle;
     }
+
     /**
+     * Which house was this division in?
      * @return string
      */
     public function getHouse(): string
@@ -161,6 +172,7 @@ final class DivisionEntity extends AbstractEntity
     }
 
     /**
+     * How many rebellions (in total) were then? May be null if not yet compiled.
      * @return int|null
      */
     public function getRebellions(): ?int
@@ -169,6 +181,7 @@ final class DivisionEntity extends AbstractEntity
     }
 
     /**
+     * What was the total turnout/votes cast? May be null if not yet compiled.
      * @return int|null
      */
     public function getTurnout(): ?int
@@ -177,6 +190,7 @@ final class DivisionEntity extends AbstractEntity
     }
 
     /**
+     * Get the total possible turnout (registered MPs etc) on that date. May be null if not yet compiled.
      * @return int|null
      */
     public function getPossibleTurnout(): ?int
@@ -185,47 +199,11 @@ final class DivisionEntity extends AbstractEntity
     }
 
     /**
+     * Get the majority of the ayes. May be negative if the noes won. May be null if not yet compiled.
      * @return int|null
      */
     public function getAyeMajority(): ?int
     {
         return $this->ayeMajority;
-    }
-
-
-    /**
-     * Returns an associated array of properties the entity requires.
-     *
-     * @return array
-     */
-    protected function requiredPropertiesMapping(): array
-    {
-        return [
-            'id' => 'int',
-            'date' => DateTimeImmutable::class,
-            'number' => 'int',
-            'sourceUrl' => 'string',
-            'debateUrl' => 'string',
-            'motionText' => 'string',
-            'house' => 'string',
-            'motionTitle' => 'string',
-            'originalMotionText' => 'string',
-            'originalMotionTitle' => 'string'
-        ];
-    }
-
-    /**
-     * Returns an optional associated array of properties this entity can deal with.
-     *
-     * @return array
-     */
-    protected function optionalPropertiesMapping(): array
-    {
-        return [
-            'rebellions' => 'int',
-            'turnout' => 'int',
-            'possibleTurnout' => 'int',
-            'ayeMajority' => 'int'
-        ];
     }
 }

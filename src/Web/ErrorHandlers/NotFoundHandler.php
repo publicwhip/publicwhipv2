@@ -3,37 +3,100 @@ declare(strict_types=1);
 
 namespace PublicWhip\Web\ErrorHandlers;
 
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use PublicWhip\Providers\DebuggerProviderInterface;
-use Slim\Handlers\NotFound;
+use Slim\Handlers\AbstractHandler;
+use Slim\Http\Body;
+use UnexpectedValueException;
 
 /**
  * Class NotFoundHandler
- * @package PublicWhip\Web\ErrorHandlers
+ *
  */
-class NotFoundHandler extends NotFound
+final class NotFoundHandler extends AbstractHandler
 {
 
     /**
-     * @var DebuggerProviderInterface
+     * @var DebuggerProviderInterface The debugger.
      */
     private $debuggerProvider;
 
     /**
      * Constructor.
-     * @param DebuggerProviderInterface $debuggerProvider
+     *
+     * @param DebuggerProviderInterface $debuggerProvider The debugger.
      */
     public function __construct(DebuggerProviderInterface $debuggerProvider)
     {
         $this->debuggerProvider = $debuggerProvider;
     }
 
+    /**
+     * Invoke not found handler
+     *
+     * @param ServerRequestInterface $request The most recent Request object
+     * @param ResponseInterface $response The most recent Response object
+     *
+     * @return ResponseInterface
+     * @throws UnexpectedValueException
+     */
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
+    {
+        // set some defaults
+        $contentType = 'text/plain';
+        $output = $this->renderPlainNotFoundOutput();
+
+        if ('OPTIONS' !== $request->getMethod()) {
+            $contentType = $this->determineContentType($request);
+            switch ($contentType) {
+                case 'application/json':
+                    $output = $this->renderJsonNotFoundOutput();
+                    break;
+
+                case 'text/html':
+                    $output = $this->renderHtmlNotFoundOutput($request);
+                    break;
+
+                default:
+                    throw new UnexpectedValueException('Cannot render unknown content type ' . $contentType);
+            }
+        }
+
+        /** @var resource $fopen */
+        $fopen = fopen('php://temp', 'rb+');
+        $body = new Body($fopen);
+        $body->write($output);
+
+        return $response->withStatus(404)
+            ->withHeader('Content-type', $contentType)
+            ->withBody($body);
+    }
+
+
+    /**
+     * Render plain not found message
+     *
+     * @return string
+     */
+    protected function renderPlainNotFoundOutput(): string
+    {
+        return 'Not found';
+    }
+
+    /**
+     * Return a response for application/json content not found
+     *
+     * @return string
+     */
+    protected function renderJsonNotFoundOutput(): string
+    {
+        return '{"message":"Not found"}';
+    }
 
     /**
      * Return a response for text/html content not found
      *
-     * phpcs:disable -- Slim currently has the wrong typehint on this method. Disabled CodeSniffer for now
-     * @codingStandardsIgnoreStart
      * @param ServerRequestInterface $request The most recent Request object
      *
      * @return string
@@ -44,7 +107,7 @@ class NotFoundHandler extends NotFound
         $text = <<<END
 <html>
     <head>
-        <title>Page Not Found</title>
+        <title>Public Whip Page Not Found</title>
         <style>
             body{
                 margin:0;
@@ -65,7 +128,7 @@ class NotFoundHandler extends NotFound
         %s
     </head>
     <body>
-        <h1>Page Not Found</h1>
+        <h1>Public Whip Page Not Found</h1>
         <p>
             The page you are looking for could not be found. Check the address bar
             to ensure your URL is spelled correctly. If all else fails, you can
@@ -78,8 +141,4 @@ class NotFoundHandler extends NotFound
 END;
         return sprintf($text, $this->debuggerProvider->renderHead(), $homeUrl, $this->debuggerProvider->renderBar());
     }
-    /**
-     * phpcs:enable
-     * @codingStandardsIgnoreEnd
-     */
 }

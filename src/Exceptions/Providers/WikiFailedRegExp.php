@@ -8,7 +8,6 @@ namespace PublicWhip\Exceptions\Providers;
  *
  * Thrown if the wiki parser hits a regexp issue.
  *
- * @package PublicWhip\Exceptions\Providers
  */
 final class WikiFailedRegExp extends AbstractProviderException
 {

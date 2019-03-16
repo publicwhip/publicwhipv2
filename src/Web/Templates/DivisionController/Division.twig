@@ -1,7 +1,7 @@
 {% extends "DivisionController/template.twig" %}
 {% block title %}Counting votes{% endblock title %}
 {% block content %}
-    Division id: {{  division.id }}<br>
+    Division id: {{ division.divisionId }}<br>
     Date and number: {{ division.date|date('Y-m-d') }} - {{ division.number }}<br>
     House: {{ division.house }}<br>
     Source: {{ division.sourceUrl }}<br>
@@ -12,10 +12,10 @@
     Motion: {{ division.motionText|raw }}<br>
     Original motion text: {{ division.originalMotionText }}<br>
     {% if division.possibleTurnout %}
-    <p>There were {{ division.rebellions }} rebellions out of a total of {{ division.turnout }} votes
-        out of a possible {{ division.possibleTurnout }} giving the ayes a
-        majority of {{ division.ayeMajority }}.</p>
+        <p>There were {{ division.rebellions }} rebellions out of a total of {{ division.turnout }} votes
+            out of a possible {{ division.possibleTurnout }} giving the ayes a
+            majority of {{ division.ayeMajority }}.</p>
     {% else %}
         No summary information currently available.
     {% endif %}
- {% endblock content %}
+{% endblock content %}

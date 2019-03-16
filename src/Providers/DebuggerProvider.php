@@ -4,16 +4,15 @@ declare(strict_types=1);
 namespace PublicWhip\Providers;
 
 use DebugBar\DataCollector\DataCollectorInterface;
-use DebugBar\DataCollector\ExceptionsCollector;
 use DebugBar\DataCollector\MessagesAggregateInterface;
 use DebugBar\DebugBarException;
 use DebugBar\JavascriptRenderer;
 use DebugBar\StandardDebugBar;
-use Exception;
+use Throwable;
 
 /**
  * Class DebuggerProvider
- * @package PublicWhip\Providers
+ *
  */
 final class DebuggerProvider implements DebuggerProviderInterface
 {
@@ -28,10 +27,10 @@ final class DebuggerProvider implements DebuggerProviderInterface
      */
     private $renderer;
 
-
     /**
      * DebuggerProvider constructor.
-     * @param bool $active
+     *
+     * @param bool $active Are we active?
      */
     public function __construct(bool $active)
     {
@@ -43,7 +42,26 @@ final class DebuggerProvider implements DebuggerProviderInterface
     }
 
     /**
-     * @param DataCollectorInterface $collector
+     * Set the base url for output rendering.
+     *
+     * @param string $url Base Url.
+     *
+     * @return void
+     */
+    public function setBaseUrl(string $url): void
+    {
+        if (null !== $this->renderer) {
+            $this->renderer->setBaseUrl($url);
+        }
+    }
+
+    /**
+     * Add a new data collector to the debugger.
+     *
+     * @param DataCollectorInterface $collector The data collector we are adding.
+     *
+     * @return void
+     *
      * @throws DebugBarException
      */
     public function addDataCollector(DataCollectorInterface $collector): void
@@ -54,7 +72,11 @@ final class DebuggerProvider implements DebuggerProviderInterface
     }
 
     /**
-     * @param MessagesAggregateInterface $collector
+     * Add a new messages collector.
+     *
+     * @param MessagesAggregateInterface $collector The collector we are adding.
+     *
+     * @return void
      */
     public function addMessagesAggregateCollector(MessagesAggregateInterface $collector): void
     {
@@ -64,10 +86,14 @@ final class DebuggerProvider implements DebuggerProviderInterface
     }
 
     /**
-     * @param string $msg
-     * @param string $level
+     * Log a message.
+     *
+     * @param string $msg The message we are logging.
+     * @param string|null $level The severity level we are logging.
+     *
+     * @return void
      */
-    public function addMessage(string $msg, string $level = null): void
+    public function addMessage(string $msg, ?string $level = null): void
     {
         if (null !== $this->debugbar) {
             $level = $level ?: 'info';
@@ -76,26 +102,22 @@ final class DebuggerProvider implements DebuggerProviderInterface
     }
 
     /**
-     * @param Exception $e
+     * Add an exception.
+     *
+     * @param Throwable $throwable The throwable we are handling.
+     *
+     * @return void
      */
-    public function addException(Exception $e) : void
+    public function addThrowable(Throwable $throwable): void
     {
         if (null !== $this->debugbar) {
-            $this->debugbar['exceptions']->addException($e);
+            $this->debugbar['exceptions']->addException($throwable);
         }
     }
 
     /**
-     * @param string $url
-     */
-    public function setBaseUrl(string $url): void
-    {
-        if (null !== $this->renderer) {
-            $this->renderer->setBaseUrl($url);
-        }
-    }
-
-    /**
+     * Get the base URL for output rendering.
+     *
      * @return string
      */
     public function getBaseUrl(): string
@@ -107,6 +129,8 @@ final class DebuggerProvider implements DebuggerProviderInterface
     }
 
     /**
+     * Get the base path for output rendering.
+     *
      * @return string
      */
     public function getBasePath(): string
@@ -118,6 +142,8 @@ final class DebuggerProvider implements DebuggerProviderInterface
     }
 
     /**
+     * Get the head text.
+     *
      * @return string
      */
     public function renderHead(): string
@@ -129,6 +155,8 @@ final class DebuggerProvider implements DebuggerProviderInterface
     }
 
     /**
+     * Get the actual debug bar.
+     *
      * @return string
      */
     public function renderBar(): string

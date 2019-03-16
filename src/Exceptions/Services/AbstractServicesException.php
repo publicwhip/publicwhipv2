@@ -10,7 +10,6 @@ use PublicWhip\Exceptions\AbstractException;
  *
  * All services exceptions should extend from here.
  *
- * @package PublicWhip\Exceptions\Entities
  */
 abstract class AbstractServicesException extends AbstractException
 {

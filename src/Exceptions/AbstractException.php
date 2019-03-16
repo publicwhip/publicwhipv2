@@ -10,7 +10,6 @@ use RuntimeException;
  *
  * All exceptions should extend from here.
  *
- * @package PublicWhip\Exceptions
  */
 abstract class AbstractException extends RuntimeException
 {

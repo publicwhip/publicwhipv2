@@ -10,7 +10,6 @@ use PublicWhip\Exceptions\AbstractException;
  *
  * All provider exceptions should extend from here.
  *
- * @package PublicWhip\Exceptions\Entities
  */
 abstract class AbstractProviderException extends AbstractException
 {

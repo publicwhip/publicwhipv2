@@ -5,22 +5,21 @@ namespace PublicWhip\Web\Controllers;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use PublicWhip\Providers\TemplateProviderInterface;
 use PublicWhip\Services\DivisionServiceInterface;
 use Slim\Exception\NotFoundException;
-use Slim\Views\Twig;
 
 /**
  * Class DivisionController.
  *
- * @package PublicWhip\Web\Controllers
  */
 class DivisionController
 {
 
     /**
-     * @var Twig $twig Templating engine.
+     * @var TemplateProviderInterface $templateProvider Templating engine.
      */
-    private $twig;
+    private $templateProvider;
 
     /**
      * @var ServerRequestInterface $request
@@ -34,33 +33,40 @@ class DivisionController
 
     /**
      * DivisionController constructor.
-     * @param Twig $twig
-     * @param ServerRequestInterface $request
-     * @param DivisionServiceInterface $divisionService
+     *
+     * @param TemplateProviderInterface $templateProvider The templating system provider.
+     * @param ServerRequestInterface $request The actual server request information.
+     * @param DivisionServiceInterface $divisionService The division service.
      */
     public function __construct(
-        Twig $twig,
+        TemplateProviderInterface $templateProvider,
         ServerRequestInterface $request,
         DivisionServiceInterface $divisionService
-    ) {
-        $this->twig = $twig;
+    )
+    {
+        $this->templateProvider = $templateProvider;
         $this->request = $request;
         $this->divisionService = $divisionService;
     }
 
     /**
-     * @param ResponseInterface $response
+     * Just show a basic page for now.
+     *
+     * @param ResponseInterface $response The inbound request.
+     *
      * @return ResponseInterface
      */
     public function indexAction(ResponseInterface $response): ResponseInterface
     {
-        return $this->twig->render($response, 'DivisionController/indexAction.twig', []);
+        return $this->templateProvider->render($response, 'DivisionController/indexAction.twig', []);
     }
 
-
     /**
-     * @param string $divisionId
-     * @param ResponseInterface $response
+     * Show a division by it's id.
+     *
+     * @param string $divisionId Has to support string as this is passed from the frontend.
+     * @param ResponseInterface $response The response to populate.
+     *
      * @return ResponseInterface
      * @throws NotFoundException
      */
@@ -70,7 +76,7 @@ class DivisionController
         if (!$division) {
             throw new NotFoundException($this->request, $response);
         }
-        return $this->twig->render(
+        return $this->templateProvider->render(
             $response,
             'DivisionController/Division.twig',
             [
@@ -80,10 +86,13 @@ class DivisionController
     }
 
     /**
-     * @param string $house
-     * @param string $date
-     * @param string $divisionId
-     * @param ResponseInterface $response
+     * Show a division by it's house, date and number.
+     *
+     * @param string $house Name of the house.
+     * @param string $date Date (in YYYY-MM-DD format)
+     * @param string $divisionNumber The division number.
+     * @param ResponseInterface $response The response to populate.
+     *
      * @return ResponseInterface
      * @throws NotFoundException
      * @throws \ReflectionException
@@ -91,14 +100,15 @@ class DivisionController
     public function showDivisionByDateAndNumberAction(
         string $house,
         string $date,
-        string $divisionId,
+        string $divisionNumber,
         ResponseInterface $response
-    ): ResponseInterface {
-        $division = $this->divisionService->findByHouseDateAndNumber($house, $date, (int)$divisionId);
+    ): ResponseInterface
+    {
+        $division = $this->divisionService->findByHouseDateAndNumber($house, $date, (int)$divisionNumber);
         if (!$division) {
             throw new NotFoundException($this->request, $response);
         }
-        return $this->twig->render(
+        return $this->templateProvider->render(
             $response,
             'DivisionController/Division.twig',
             [

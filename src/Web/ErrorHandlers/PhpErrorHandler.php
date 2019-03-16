@@ -9,20 +9,20 @@ use Throwable;
 
 /**
  * Class PhpErrorHandler
- * @package PublicWhip\Web\ErrorHandlers
  */
 class PhpErrorHandler extends PhpError
 {
 
     /**
-     * @var DebuggerProviderInterface
+     * @var DebuggerProviderInterface The debugger.
      */
     private $debuggerProvider;
 
     /**
      * Constructor.
-     * @param DebuggerProviderInterface $debuggerProvider
-     * @param bool $displayErrorDetails
+     *
+     * @param DebuggerProviderInterface $debuggerProvider The debugger.
+     * @param bool $displayErrorDetails Should we display error messages (should be disabled in production).
      */
     public function __construct(DebuggerProviderInterface $debuggerProvider, bool $displayErrorDetails)
     {
@@ -33,7 +33,7 @@ class PhpErrorHandler extends PhpError
     /**
      * Render HTML error page
      *
-     * @param Throwable $error
+     * @param Throwable $error The error that was thrown.
      *
      * @return string
      */
@@ -41,6 +41,7 @@ class PhpErrorHandler extends PhpError
     {
         $title = 'PublicWhip Application Error - Major Error';
 
+        $html = '<p>A website error has occurred. Sorry for the temporary inconvenience.</p>';
         if ($this->displayErrorDetails) {
             $html = '<p>The application could not run because of the following error:</p>';
             $html .= '<h2>Details</h2>';
@@ -52,8 +53,6 @@ class PhpErrorHandler extends PhpError
                 $html .= $this->renderHtmlError($error);
                 $error = $error->getPrevious();
             }
-        } else {
-            $html = '<p>A website error has occurred. Sorry for the temporary inconvenience.</p>';
         }
 
         $debugHead = $this->debuggerProvider->renderHead();

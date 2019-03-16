@@ -10,9 +10,12 @@ parameters:
             ignore_patterns: ['database','docker','cache','logs']
         phpcs:
             standard: ./phpcs.xml
-            ignore_patterns: ['web','database','docker','cache','logs','.phpstorm.meta.php']
-        phplint: ~
+            ignore_patterns: ['web','database','docker','cache','logs','.phpstorm.meta.php','.idea']
+        phplint:
+            exclude: ['web','database','docker','cache','logs','.phpstorm.meta.php','.idea']
+            ignore_patterns:  ['web','database','docker','cache','logs','.phpstorm.meta.php','.idea']
         phpmd:
+            exclude: ['./.idea/']
             whitelist_patterns:
                 - /^src\/(.*)/
                 - /^tests\/(.*)/
@@ -21,7 +24,7 @@ parameters:
         phpstan:
             configuration: ./phpstan.neon
             level: 7
-            ignore_patterns: ['web','database','docker','cache','logs','.phpstorm.meta.php','NotFoundHandler.php']
+            ignore_patterns: ['web','database','docker','cache','logs','.phpstorm.meta.php','.idea']
         phpversion:
             project: '7.2'
         phpunit:
@@ -29,7 +32,7 @@ parameters:
         securitychecker: ~
         phpcpd:
             directory: '.'
-            exclude: ['vendor','web','database','docker','cache','logs','.phpstorm.meta.php']
+            exclude: ['vendor','web','database','docker','cache','logs','.phpstorm.meta.php','.idea']
             names_exclude: []
             regexps_exclude: []
             fuzzy: false

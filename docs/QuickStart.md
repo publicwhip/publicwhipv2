@@ -33,16 +33,7 @@ I personally use [PHPStorm](https://www.jetbrains.com/phpstorm/) with the
 [PHP Inspections Ultimate](https://kalessil.github.io/php-inspections-ultimate.html) and
 [EditorConfig](https://plugins.jetbrains.com/plugin/7294-editorconfig) plugins.
 
-If you use PHPStorm as well, you may find going to:
-- Mac: PHPStorm->Preferences->Editor->Inspections->(Cog)->Import Profile
-- Windows: File->Settings->Editor->Inspections->(Cog)->Import Profile
-
-and importing `phpStormInspections.xml` and
-
-- Mac: PHPStorm->Preferences->Editor->Code Style->(Cog)->Import Scheme->IntelliJ IDEA code style XML
-- Windows: File->Settings->Editor->Inspections->(Cog)->Import Scheme->IntelliJ IDEA code style XML
-
-and then importing `phpStormCodeStyle.xml` to help.
+If you use PHPStorm as well, the included `.idea` folder should automatically configure everything for you.
 
 Other IDEs will be able to make use of the `.editorconfig` file in the root folder to help.
 

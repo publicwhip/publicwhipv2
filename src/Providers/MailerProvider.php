@@ -5,7 +5,6 @@ namespace PublicWhip\Providers;
 
 use DebugBar\Bridge\SwiftMailer\SwiftLogCollector;
 use DebugBar\Bridge\SwiftMailer\SwiftMailCollector;
-use DebugBar\DebugBarException;
 use RuntimeException;
 use Swift_Mailer;
 use Swift_Message;
@@ -15,88 +14,90 @@ use Swift_SmtpTransport;
 
 /**
  * Class MailerProvider
- * @package PublicWhip\Providers
- * @TODO Uses 'new'/factories: can we change to use DI?
+ *
+ * @TODO Uses 'new' can we change to use DI?
  */
 final class MailerProvider implements MailerProviderInterface
 {
 
     /**
-     * @var Swift_Mailer $mailer
+     * @var Swift_Mailer $mailer The mailing engine.
      */
     private $mailer;
 
     /**
      * MailerProvider constructor.
-     * @param array $options
+     *
+     * @param string[] $options Configuration options.
      */
     public function __construct(array $options)
     {
         $transport = $options['transport'] ?: '';
         switch ($transport) {
             case 'null':
-                $transport = Swift_NullTransport::newInstance();
+                $transport = new Swift_NullTransport();
                 break;
             case 'smtp':
-                $transport = Swift_SmtpTransport::newInstance($options['host'], $options['port'])
+                $transport = (new Swift_SmtpTransport($options['host'], (int)$options['port']))
                     ->setUsername($options['username'])
                     ->setPassword($options['password']);
                 break;
             case 'sendmail':
-                $transport = Swift_SendmailTransport::newInstance($options['command']);
+                $transport = new Swift_SendmailTransport($options['command']);
                 break;
             default:
                 throw new RuntimeException('Unrecognised mail transport');
         }
-        $this->mailer = Swift_Mailer::newInstance($transport);
+        $this->mailer = new Swift_Mailer($transport);
     }
 
     /**
-     * @param string $subject
-     * @param string $to
-     * @param array $body
+     * Send a multipart email.
+     *
+     * @param string $subject The subject of the email.
+     * @param string $toAddress Who it is going to.
+     * @param string $toName The name of the person it is going to.
+     * @param string[] $body What the body of the email is.
+     *
      * @return int The number of successful recipients. Can be 0 which indicates failure
      */
-    public function sendMultipartMail(string $subject, string $to, array $body): int
+    public function sendMultipartMail(string $subject, string $toAddress, string $toName, array $body): int
     {
-        $message = Swift_Message::newInstance($subject)->setTo($to);
-        $first = true;
-        foreach ($body as $part) {
-            if ($first) {
-                $message->setBody($part);
-                $first = false;
-            } else {
-                $message->addPart($part);
-            }
+        if (0 === count($body)) {
+            return 0;
         }
-        return $this->send($message);
-    }
-
-    /**
-     * @param Swift_Message $message
-     * @return int The number of successful recipients. Can be 0 which indicates failure
-     */
-    private function send(Swift_Message $message): int
-    {
+        $message = Swift_Message::newInstance($subject)->setTo($toAddress, $toName);
+        $message->addPart($body[0]);
+        next($body);
+        foreach ($body as $part) {
+            $message->addPart($part);
+        }
         return $this->mailer->send($message);
     }
 
     /**
-     * @param string $subject
-     * @param string $to
-     * @param string $body
+     * Send a simple plain text email.
+     *
+     * @param string $subject The subject of the email.
+     * @param string $toAddress Who it is going to.
+     * @param string $toName The name of the person it is going to.
+     * @param string $body What the body of the email is.
+     *
      * @return int The number of successful recipients. Can be 0 which indicates failure
      */
-    public function sendMail(string $subject, string $to, string $body): int
+    public function sendMail(string $subject, string $toAddress, string $toName, string $body): int
     {
-        $message = Swift_Message::newInstance($subject)->setTo($to);
+        $message = (new Swift_Message($subject))->setTo($toAddress, $toName);
         $message->setBody($body);
-        return $this->send($message);
+        return $this->mailer->send($message);
     }
 
     /**
-     * @param DebuggerProviderInterface $debugger
-     * @throws DebugBarException
+     * Add a debugger.
+     *
+     * @param DebuggerProviderInterface $debugger The debugger to add.
+     *
+     * @return void
      */
     public function addToDebugger(DebuggerProviderInterface $debugger): void
     {

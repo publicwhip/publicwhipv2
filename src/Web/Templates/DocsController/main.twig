@@ -6,13 +6,17 @@
             <div class="pure-menu pure-menu-horizontal">
                 <ul class="pure-menu-list">
                     <li class="pure-menu-item"><a href="/docs/" class="pure-menu-link">Read me</a></li>
-                    <li class="pure-menu-item"><a href="/docs/docs/Milestones.md" class="pure-menu-link">Milestones</a></li>
+                    <li class="pure-menu-item"><a href="/docs/docs/Milestones.md" class="pure-menu-link">Milestones</a>
+                    </li>
                     <li class="pure-menu-item"><a href="/docs/LICENSE.txt" class="pure-menu-link">License</a></li>
-                    <li class="pure-menu-item"><a href="/docs/docs/CODE_OF_CONDUCT.md" class="pure-menu-link">Code of Conduct</a>
+                    <li class="pure-menu-item"><a href="/docs/docs/CODE_OF_CONDUCT.md" class="pure-menu-link">Code of
+                            Conduct</a>
                     </li>
 
-                    <li class="pure-menu-item"><a href="/docs/docs/CONTRIBUTING.md" class="pure-menu-link">Contributing</a></li>
-                    <li class="pure-menu-item"><a href="/docs/docs/QuickStart.md" class="pure-menu-link">Quick Start</a></li>
+                    <li class="pure-menu-item"><a href="/docs/docs/CONTRIBUTING.md"
+                                                  class="pure-menu-link">Contributing</a></li>
+                    <li class="pure-menu-item"><a href="/docs/docs/QuickStart.md" class="pure-menu-link">Quick Start</a>
+                    </li>
 
                     <li class="pure-menu-item"><a href="/docs/docs/Contact.md" class="pure-menu-link">Contact</a></li>
 
@@ -25,6 +29,6 @@
 
     You are viewing file <code>{{ file }}</code>.
     <pre class="code">
-    {{ content|raw }}
+    {{ markdownText|raw }}
     </pre>
 {% endblock content %}
