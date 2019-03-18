@@ -13,6 +13,8 @@ These are items that have been done and released. To see what's planned, have a 
     More coding style improvements and fixes.
     
     Standardise on the spelling/format of `PublicWhip`.
+    
+    Add coveralls coverage.
 
 * 0.4.1 - Improved coding style and fixes. DONE - 2019-03-16
 

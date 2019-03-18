@@ -20,12 +20,12 @@ final class WikiParserProvider implements WikiParserProviderInterface
     /**
      * A 'safe' version of html &lt; used for tag stripping.
      */
-    private const SAFE_LESSTHAN = '[[[';
+    private const SAFE_LESS_THAN = '[[[';
 
     /**
      * 'safe' version of html &gt; used for tag stripping.
      */
-    private const SAFE_GREATERTHAN = ']]]';
+    private const SAFE_GREATER_THAN = ']]]';
 
     /**
      *  'safe' version of html &quot; used for tag stripping.
@@ -126,7 +126,7 @@ final class WikiParserProvider implements WikiParserProviderInterface
                             $matches[0]
                         );
                         if (!is_numeric($footerNumber)) {
-                            throw new WikiFailedRegExp('Expected something that looked numerical');
+                            throw new WikiFailedRegExp('Expected something that looked numerical for footnote');
                         }
                         $footerNumber = (int)$footerNumber;
                     }
@@ -261,8 +261,8 @@ final class WikiParserProvider implements WikiParserProviderInterface
     {
         $patterns = [
             '/&amp;(#?[A-Za-z0-9]+?;)/',
-            '/' . preg_quote(self::SAFE_LESSTHAN, '/') . '/',
-            '/' . preg_quote(self::SAFE_GREATERTHAN, '/') . '/',
+            '/' . preg_quote(self::SAFE_LESS_THAN, '/') . '/',
+            '/' . preg_quote(self::SAFE_GREATER_THAN, '/') . '/',
             '/' . preg_quote(self::SAFE_QUOTE, '/') . '/'
         ];
         $replace = ['&\\1', '<', '>', '"'];
@@ -314,7 +314,7 @@ final class WikiParserProvider implements WikiParserProviderInterface
         }
         $checkedText = $this->replaceUsingRegExpStrings(
             '/<\/([^ ' . "\n" . '>]+)[^>]*>/i',
-            self::SAFE_LESSTHAN . '/$1' . self::SAFE_GREATERTHAN,
+            self::SAFE_LESS_THAN . '/$1' . self::SAFE_GREATER_THAN,
             $checkedText
         );
         $checkedText = $this->replaceUsingRegExpStrings('#^\s+$#m', '', $checkedText);
@@ -400,6 +400,6 @@ final class WikiParserProvider implements WikiParserProviderInterface
             $prepared = array_merge($prepared, $matches[0]);
         }
         $outText = implode(' ', $prepared);
-        return self::SAFE_LESSTHAN . $element . ($outText ? ' ' . $outText : '') . self::SAFE_GREATERTHAN;
+        return self::SAFE_LESS_THAN . $element . ($outText ? ' ' . $outText : '') . self::SAFE_GREATER_THAN;
     }
 }

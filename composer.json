@@ -43,7 +43,8 @@
     "jakub-onderka/php-parallel-lint": "^1.0",
     "slevomat/coding-standard": "^5.0",
     "sirbrillig/phpcs-variable-analysis": "^2.6",
-    "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0"
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0",
+    "php-coveralls/php-coveralls": "^2.1"
   },
   "scripts": {
     "phpcs": "phpcs --standard=./phpcs.xml -s",
