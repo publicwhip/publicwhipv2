@@ -1,0 +1,59 @@
+# .htaccess file 
+
+RewriteCond %{HTTP_HOST} !^(www\.publicwhip\.org\.uk|pw\.live|direct.publicwhip.org.uk|publicwhip-v1.localdomain)$
+RewriteRule (.*) https://www.publicwhip.org.uk/$1 [R=301,L]
+ErrorDocument 404 /404.php
+
+# exclude admin ip addresses
+RewriteRule ^account.*$ /404.php?error=restrictedAccess [L]
+
+<FilesMatch "^(mp-info.xml|mpdream-info.xml)$">
+    AddType application/x-httpd-php .xml
+</FilesMatch>
+Options ExecCGI
+DirectoryIndex index.php
+AddHandler cgi-script .cgi
+# make things safe
+#php_flag register_globals off # doesn't work / not needed for PHP5
+<Files ~ "\.inc$">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# all links on publicwhip.org.uk are permalinks
+# this lets us move pages without breaking them
+RedirectPermanent /rebels.php https://www.publicwhip.org.uk/mps.php?sort=rebellions
+RedirectPermanent /news.php https://www.publicwhip.org.uk/newsletters/archive.php
+RedirectPermanent /code.php https://www.publicwhip.org.uk/project/code.php
+RedirectPermanent /mp-info.xml https://www.publicwhip.org.uk/feeds/mp-info.xml
+RedirectPermanent /dreammp.php https://www.publicwhip.org.uk/policy.php
+
+
+Options +FollowSymLinks
+RewriteEngine On
+RewriteCond %{QUERY_STRING} (.*)Louise_Bagshawe(.*)
+RewriteRule ^ %{REQUEST_URI}?%1Louise_Mensch%2 [R=302,L]
+
+RewriteRule ^[Nn]/([^;]+)$                      /newsletters/signup.php?token=$1
+RewriteRule ^[Uu]/([^;]+)$                      /newsletters/signup.php?token=$1&unsub=1
+RewriteRule ^byelection$ /election_glenrothes2008.php [PT]
+RewriteRule ^by-election$ /election_glenrothes2008.php?dash=yes [PT]
+RewriteRule ^fortytwodays$ /fortytwodays.php [PT]
+
+RewriteRule ^forum.*$ /404.php?error=pageRemoved [R=301,L]
+# exclude admin ip addresses
+RewriteRule ^account.*$ /404.php?error=restrictedAccount [R=302,L]
+
+# future proofing
+RewriteRule ^division/(commons|lords|scotland)/(\d\d\d\d-\d\d-\d\d)/([0-9]+)$ /division.php?house=$1&date=$2&number=$3 [L]
+RewriteRule ^mp/(commons|lords|scotland)/name/([^/]+)/summary$ /mp.php?house=$1&mpn=$2&display=summary
+RewriteRule ^mp/(commons|lords|scotland)/name/([^/]+)$ /mp.php?house=$1&mpn=$2
+RewriteRule ^mp/(commons|lords|scotland)/for/([^/]+)/name/([^/]+)$ /mp.php?house=$1&mpc=$2&mpn=$3
+RewriteRule ^mp/(commons|lords|scotland)/for/([^/]+)/name/([^/]+)/summary$ /mp.php?house=$1&mpc=$2&mpn=$3&display=summary
+RewriteRule ^mp/(commons|lords|scotland)/for/([^/]+)$ /mp.php?house=$1&mpc=$2
+RewriteRule ^mp/for/([^/]+)$ /mp.php?mpc=$1
+RewriteRule ^mp/for/([^/]+)/name/([^/]+)$ /mp.php?mpc=$1&mpn=2
+RewriteRule ^mp/name/([^/]+)/summary$ /mp.php?mpn=$1&display=summary
+RewriteRule ^mp/name/([^/]+)$ /mp.php?mpn=$1
+
+

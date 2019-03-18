@@ -12,6 +12,7 @@ use PublicWhip\Web\Controllers\IndexController;
 use PublicWhip\Web\Controllers\PingController;
 use Slim\App;
 use Slim\Http\Response;
+use function strlen;
 
 /**
  * Class Routing.
@@ -26,7 +27,7 @@ class Routing
      *
      * @param App $app Slim App.
      */
-    public function getRouting(App $app)
+    public function getRouting(App $app): void
     {
 
         // index page
@@ -49,9 +50,7 @@ class Routing
     /**
      * Handle optional trailing slashes on GET requests.
      *
-     * @param App $app Slim App.
-     * @return void
-     */
+     * @param App $app Slim App.     */
     public function setupTrailingSlash(App $app): void
     {
         $container = $app->getContainer();
@@ -59,7 +58,7 @@ class Routing
             function (RequestInterface $request, Response $response, callable $next) use ($container) {
                 $uri = $request->getUri();
                 $path = $uri->getPath();
-                if (\strlen($path) > 1) {
+                if (strlen($path) > 1) {
                     if ('/' !== substr($path, -1) && !pathinfo($path, PATHINFO_EXTENSION)) {
                         $path .= '/';
                     }
@@ -83,9 +82,7 @@ class Routing
      * Sets up all the routes starting /ping - mainly our uptime monitoring ones.
      *
      * @param App $app Slim app.
-     *
-     * @return void
-     */
+     *     */
     private function setupPingRoutes(App $app): void
     {
         $app->group(
@@ -101,9 +98,7 @@ class Routing
      * Setup all the routes starting /divisions .
      *
      * @param App $app Slim App
-     *
-     * @return void
-     */
+     *     */
     private function setupDivisions(App $app): void
     {
         $app->group(

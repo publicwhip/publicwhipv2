@@ -144,7 +144,7 @@ class DebugBarController
             'svg' => 'image/svg+xml',
             'ttf' => 'application/font-sfnt',
             'woff' => 'application/font-woff',
-            'woff2' => 'application/font-woff2',
+            'woff2' => 'application/font-woff2'
         ];
         return $map[$ext] ?? '';
     }

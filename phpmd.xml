@@ -24,6 +24,7 @@
         <exclude name="ShortVariable" />
         <exclude name="LongVariable" />
     </rule>
+
     <exclude-pattern>.idea/</exclude-pattern>
     <exclude-pattern>cache/</exclude-pattern>
     <exclude-pattern>database/</exclude-pattern>
@@ -31,7 +32,8 @@
     <exclude-pattern>docs/</exclude-pattern>
     <exclude-pattern>logs/</exclude-pattern>
     <exclude-pattern>qa/</exclude-pattern>
-    <exclude-pattern>v1migrationUtils/</exclude-pattern>
+    <exclude-pattern>v1migrationUtils</exclude-pattern>
     <exclude-pattern>vendor/</exclude-pattern>
+    <exclude-pattern>originalPublicWhipCode</exclude-pattern>
 
 </ruleset>

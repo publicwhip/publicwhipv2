@@ -1,9 +1,6 @@
 <?php
 declare(strict_types=1);
 
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
-
 $definitions = require __DIR__ . DIRECTORY_SEPARATOR . 'develop.php';
 return array_merge(
     $definitions,

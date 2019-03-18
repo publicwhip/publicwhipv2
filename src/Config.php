@@ -12,7 +12,10 @@ use Invoker\ParameterResolver\DefaultValueResolver;
 use Invoker\ParameterResolver\ResolverChain;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+use Monolog\Processor\IntrospectionProcessor;
+use Monolog\Processor\MemoryUsageProcessor;
 use Monolog\Processor\UidProcessor;
+use Monolog\Processor\WebProcessor;
 use Parsedown;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\RequestInterface;
@@ -79,6 +82,7 @@ class Config
     public function getWebConfig(): array
     {
         $return = [
+            'settings.isWeb' => true,
             'determineRouteBeforeAppMiddleware' => false,
             'settings.displayErrorDetails' => get('settings.debug'),
             // setup our twig extension
@@ -127,7 +131,7 @@ class Config
 
     /**
      * Get the general Slim settings.
-    /**
+     * /**
      * Disable this PHPMD warning for simplicity when building the environment using Request::.
      * @SuppressWarnings(PHPMD.StaticAccess)
      *
@@ -153,7 +157,7 @@ class Config
                 'determineRouteBeforeAppMiddleware' => get('settings.determineRouteBeforeAppMiddleware'),
                 'displayErrorDetails' => get('settings.displayErrorDetails'),
                 'addContentLengthHeader' => get('settings.addContentLengthHeader'),
-                'routerCacheFile' => get('settings.routerCacheFile'),
+                'routerCacheFile' => get('settings.routerCacheFile')
             ],
 
             // Default Slim services
@@ -187,12 +191,12 @@ class Config
                     // Then inject services by type-hints for those that weren't resolved
                     new TypeHintContainerResolver($container),
                     // Then fall back on parameters default values for optional route parameters
-                    new DefaultValueResolver(),
+                    new DefaultValueResolver()
                 ];
                 return new Invoker(new ResolverChain($resolvers), $container);
             },
 
-            'callableResolver' => autowire(CallableResolverProvider::class),
+            'callableResolver' => autowire(CallableResolverProvider::class)
         ];
     }
 
@@ -204,18 +208,46 @@ class Config
     public function getGeneralConfig(): array
     {
         /**
+         * Default settings.
+         */
+        $defaultSettings = [
+            'settings.isWeb' => false
+        ];
+        /**
+         * Loggers
+         */
+        $loggers = [
+            'logger.default' => static function (ContainerInterface $container): Logger {
+                $settings = $container->get('settings.logger');
+                $logger = new Logger('default');
+                $logger->pushProcessor(new UidProcessor());
+                $logger->pushProcessor(new MemoryUsageProcessor());
+                $logger->pushHandler(new StreamHandler($settings['path'], Logger::DEBUG));
+                $logger->pushProcessor(new IntrospectionProcessor());
+                if ($container->get('settings.isWeb') && $container->has('environment')) {
+                    $logger->pushProcessor(new WebProcessor($container->get('environment')));
+                }
+                // add it to the debugger
+                $debugger = $container->get(DebuggerProviderInterface::class);
+                $debugger->addDataCollector(new MonologCollector($logger));
+
+                return $logger;
+            },
+            'logger.providers' => static function (ContainerInterface $container): Logger {
+                return $container->get('logger.default')->withName('providers');
+            },
+            'logger.services' => static function (ContainerInterface $container): Logger {
+                return $container->get('logger.default')->withName('services');
+            },
+            'logger.factories' => static function (ContainerInterface $container): Logger {
+                return $container->get('logger.default')->withName('factories');
+            },
+            LoggerInterface::class => get('logger.default')
+        ];
+        /**
          * Providers
          */
         $providers = [
-            LoggerInterface::class => static function (ContainerInterface $container): LoggerInterface {
-                $settings = $container->get('settings.logger');
-                $logger = new Logger($settings['name']);
-                $logger->pushProcessor(new UidProcessor());
-                $logger->pushHandler(new StreamHandler($settings['path'], Logger::DEBUG));
-                $debugger = $container->get(DebuggerProviderInterface::class);
-                $debugger->addDataCollector(new MonologCollector($logger));
-                return $logger;
-            },
 
             DatabaseProviderInterface::class => create(DatabaseProvider::class)
                 ->constructor(get('settings.db'))
@@ -226,7 +258,8 @@ class Config
             DebuggerProviderInterface::class => create(DebuggerProvider::class)
                 ->constructor(get('settings.debug')),
 
-            WikiParserProviderInterface::class => autowire(WikiParserProvider::class),
+            WikiParserProviderInterface::class => autowire(WikiParserProvider::class)
+                ->constructorParameter('logger', get('logger.providers'))
 
 
         ];
@@ -234,15 +267,18 @@ class Config
          * Factories
          */
         $factories = [
-            EntityFactoryInterface::class => autowire(EntityFactory::class),
+            EntityFactoryInterface::class => autowire(EntityFactory::class)
+                ->constructorParameter('logger', get('logger.factories')),
             DateTimeFactoryInterface::class => autowire(DateTimeFactory::class)
+                ->constructorParameter('logger', get('logger.factories'))
         ];
         /**
          * Services.
          */
         $services = [
             DivisionServiceInterface::class => autowire(DivisionService::class)
+                ->constructorParameter('logger', get('logger.services'))
         ];
-        return array_merge($providers, $factories, $services);
+        return array_merge($defaultSettings, $loggers, $providers, $factories, $services);
     }
 }

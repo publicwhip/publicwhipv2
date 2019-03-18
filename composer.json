@@ -1,5 +1,5 @@
 {
-  "name": "bairwell/publicwhip",
+  "name": "publicwhip/publicwhip",
   "description": "Publicwhip v2 website",
   "type": "project",
   "homepage": "https://www.publicwhip.org.uk/",
@@ -43,7 +43,8 @@
     "jakub-onderka/php-parallel-lint": "^1.0",
     "slevomat/coding-standard": "^5.0",
     "sirbrillig/phpcs-variable-analysis": "^2.6",
-    "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0"
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0",
+    "php-coveralls/php-coveralls": "^2.1"
   },
   "scripts": {
     "phpcs": "phpcs --standard=./phpcs.xml -s",
@@ -69,6 +70,11 @@
   "autoload": {
     "psr-4": {
       "PublicWhip\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "PublicWhip\\Tests\\": "tests/"
     }
   },
   "minimum-stability": "stable"

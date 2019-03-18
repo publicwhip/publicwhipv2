@@ -7,6 +7,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use PublicWhip\Providers\TemplateProviderInterface;
 use PublicWhip\Services\DivisionServiceInterface;
+use ReflectionException;
 use Slim\Exception\NotFoundException;
 
 /**
@@ -58,7 +59,7 @@ class DivisionController
      */
     public function indexAction(ResponseInterface $response): ResponseInterface
     {
-        return $this->templateProvider->render($response, 'DivisionController/indexAction.twig', []);
+        return $this->templateProvider->render($response, 'DivisionController/indexAction.twig');
     }
 
     /**
@@ -95,7 +96,7 @@ class DivisionController
      *
      * @return ResponseInterface
      * @throws NotFoundException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function showDivisionByDateAndNumberAction(
         string $house,

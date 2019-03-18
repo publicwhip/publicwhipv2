@@ -88,9 +88,7 @@ final class DatabaseProvider implements DatabaseProviderInterface
      *
      * @param string[] $config Configuration settings.
      * @param string|null $name Name of the configuration.
-     *
-     * @return void
-     */
+     *     */
     public function addConnection(array $config, ?string $name = null): void
     {
         $name = $name ?: self::DEFAULT_CONNECTION_NAME;
@@ -103,9 +101,7 @@ final class DatabaseProvider implements DatabaseProviderInterface
      * Set the event dispatcher.
      *
      * @param Dispatcher $dispatcher Dispatcher.
-     *
-     * @return void
-     */
+     *     */
     public function setEventDispatcher(Dispatcher $dispatcher): void
     {
         $this->container->instance('events', $dispatcher);
@@ -192,9 +188,7 @@ final class DatabaseProvider implements DatabaseProviderInterface
      * Set the container.
      *
      * @param Container $container Set the eloquent container.
-     *
-     * @return void
-     */
+     *     */
     public function setContainer(Container $container): void
     {
         $this->container = $container;
@@ -227,16 +221,14 @@ final class DatabaseProvider implements DatabaseProviderInterface
      * Addable to a debugger.
      *
      * @param DebuggerProviderInterface $debugger Debugger to add.
-     *
-     * @return void
-     *
+     *     *
      * @throws DebugBarException
      */
     public function addToDebugger(DebuggerProviderInterface $debugger): void
     {
         $connection = $this->getConnection();
-        $tpdo = new TraceablePDO($connection->getPdo());
-        $connection->setPdo($tpdo);
-        $debugger->addDataCollector(new PDOCollector($tpdo));
+        $traceablePdo = new TraceablePDO($connection->getPdo());
+        $connection->setPdo($traceablePdo);
+        $debugger->addDataCollector(new PDOCollector($traceablePdo));
     }
 }

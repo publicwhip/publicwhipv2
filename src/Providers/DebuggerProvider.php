@@ -45,9 +45,7 @@ final class DebuggerProvider implements DebuggerProviderInterface
      * Set the base url for output rendering.
      *
      * @param string $url Base Url.
-     *
-     * @return void
-     */
+     *     */
     public function setBaseUrl(string $url): void
     {
         if (null !== $this->renderer) {
@@ -59,9 +57,7 @@ final class DebuggerProvider implements DebuggerProviderInterface
      * Add a new data collector to the debugger.
      *
      * @param DataCollectorInterface $collector The data collector we are adding.
-     *
-     * @return void
-     *
+     *     *
      * @throws DebugBarException
      */
     public function addDataCollector(DataCollectorInterface $collector): void
@@ -75,9 +71,7 @@ final class DebuggerProvider implements DebuggerProviderInterface
      * Add a new messages collector.
      *
      * @param MessagesAggregateInterface $collector The collector we are adding.
-     *
-     * @return void
-     */
+     *     */
     public function addMessagesAggregateCollector(MessagesAggregateInterface $collector): void
     {
         if (null !== $this->debugbar) {
@@ -90,9 +84,7 @@ final class DebuggerProvider implements DebuggerProviderInterface
      *
      * @param string $msg The message we are logging.
      * @param string|null $level The severity level we are logging.
-     *
-     * @return void
-     */
+     *     */
     public function addMessage(string $msg, ?string $level = null): void
     {
         if (null !== $this->debugbar) {
@@ -105,9 +97,7 @@ final class DebuggerProvider implements DebuggerProviderInterface
      * Add an exception.
      *
      * @param Throwable $throwable The throwable we are handling.
-     *
-     * @return void
-     */
+     *     */
     public function addThrowable(Throwable $throwable): void
     {
         if (null !== $this->debugbar) {

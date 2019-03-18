@@ -1,4 +1,4 @@
-This directory contains the structure and data for version 1 of the Public Whip website. The data has had personal
+This directory contains the structure and data for version 1 of the PublicWhip website. The data has had personal
 information removed/nullified and has been restricted to just the 'important tables'.
 
 It is automatically loaded into docker whenever the `docker-composer up --build` command is run

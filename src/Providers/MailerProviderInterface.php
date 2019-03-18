@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace PublicWhip\Providers;
 
+use DebugBar\DebugBarException;
+
 /**
  * Class MailerProvider
  *
@@ -47,7 +49,7 @@ interface MailerProviderInterface
      *
      * @param DebuggerProviderInterface $debugger The debugger to add.
      *
-     * @return void
+     * @throws DebugBarException
      */
     public function addToDebugger(DebuggerProviderInterface $debugger): void;
 }

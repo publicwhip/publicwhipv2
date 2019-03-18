@@ -4,8 +4,6 @@ See completed releases in the [ChangeLog](ChangeLog.md).
 
 ## Planned Milestones (in planning order)
 
-* 0.4.2 - Ensure all division data extractable from PublicWhip v1 is processed correctly: Estimate 1 day.
-
 * 0.4.5 - Create basic division editing system (with no authentication) : Estimate 3-4 days
 
 * 0.5 - Show/List policies (aka "dreams" in v1 database). Estimate 1 day
@@ -41,7 +39,7 @@ See completed releases in the [ChangeLog](ChangeLog.md).
 * 1.2 - Add MPs display. Estimate 2 days
 * 1.3 - Add local postcode lookups. Estimate 2 days.
 
-    So no need to rely upon [Mapit](mapit.mysociety.org) - so slightly faster lookups, fewer third party
+    So no need to rely upon [Mapit](https://mapit.mysociety.org) - so slightly faster lookups, fewer third party
     dependencies, lower cost and ensure we only rely on open source data.
     
 * 1.4 - Add search system. Estimate 2 days.
