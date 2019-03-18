@@ -5,15 +5,12 @@ namespace PublicWhip;
 
 use DI\ContainerBuilder;
 use Exception;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Log\LoggerInterface;
 use PublicWhip\Exceptions\MissingConfigurationException;
 use PublicWhip\Web\Routing;
 use Slim\App;
 use Slim\Exception\MethodNotAllowedException;
 use Slim\Exception\NotFoundException;
-use Slim\Http\Response;
 
 /**
  * Class Web.
@@ -68,7 +65,7 @@ class Web
         $routing = new Routing();
         $routing->getRouting($this->app);
         $routing->setupTrailingSlash($this->app);
-        return $this->app->run(false);
+        return $this->app->run();
     }
 
     /**
@@ -77,8 +74,6 @@ class Web
      * @TODO Add caching if appropriate on production.
      *
      * @param ContainerBuilder $builder The container we we populating.
-     *
-     * @return void
      *
      * @throws MissingConfigurationException
      */

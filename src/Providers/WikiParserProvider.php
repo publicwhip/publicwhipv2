@@ -5,6 +5,7 @@ namespace PublicWhip\Providers;
 
 use Psr\Log\LoggerInterface;
 use PublicWhip\Exceptions\Providers\WikiFailedRegExp;
+use function is_numeric;
 
 /**
  * Class WikiParserProvider.
@@ -56,15 +57,16 @@ final class WikiParserProvider implements WikiParserProviderInterface
      */
     public function parseDivisionTitle(string $wiki, string $default): string
     {
-        if ('' === $wiki) {
-            return $default;
+        $newTitle = $default;
+        if ('' !== $wiki && preg_match('/--- DIVISION TITLE ---\s*(.*)\s*--- MOTION EFFECT/s', $wiki, $matches)) {
+            $newTitle = $matches[1];
+            $this->logger->debug('Extracted wiki title {wikiTitle}', ['wikiTitle' => $newTitle]);
+        } else {
+            $this->logger->debug('No wiki text found, using default title: {title}', ['default' => $default]);
         }
-        if (preg_match('/--- DIVISION TITLE ---(.*)--- MOTION EFFECT/', $wiki, $matches)) {
-            $this->logger->debug(sprintf('Parsed wiki title %s', $wiki));
-            return $matches[1];
-        }
-        $this->logger->debug(sprintf('Could not parse wiki title %s', $wiki));
-        return $default;
+        $newTitle = trim(strip_tags($newTitle));
+        $newTitle = str_replace(' - ', ' &#8212; ', $newTitle);
+        return $newTitle;
     }
 
     /**
@@ -79,9 +81,7 @@ final class WikiParserProvider implements WikiParserProviderInterface
      */
     public function parseMotionText(string $wiki, string $default): string
     {
-        if ('' === $wiki) {
-            return $default;
-        }
+        $this->logger->debug('Going to parse motion text');
         $motion = $this->parseMotionTextForEdit($wiki, $default);
         if (!preg_match('/<\/.*?>/', $motion)) {
             $motionLines = explode("\n", $motion);
@@ -90,45 +90,21 @@ final class WikiParserProvider implements WikiParserProviderInterface
             $matches = [];
             $footerNumber = 0;
             foreach ($motionLines as $motionLine) {
-                $motionLine = preg_replace("/''(.*?)''/", '<em>\\1</em>', $motionLine);
-                if (null === $motionLine) {
-                    throw new WikiFailedRegExp(
-                        sprintf(
-                            'Failed with %s',
-                            array_flip(get_defined_constants(true)['pcre'])[preg_last_error()]
-                        )
-                    );
-                }
-                $motionLine = preg_replace(
-                    "/\[(https?:\S*)\s+(.*?)\]/",
+                $motionLine = $this->replaceUsingRegExpStrings("/''(.*?)''/", '<em>\\1</em>', $motionLine);
+                $motionLine = $this->replaceUsingRegExpStrings(
+                    '/\[(https?:\S*)\s+(.*?)\]/',
                     '<a href="\\1">\\2</a>',
                     $motionLine
                 );
-                if (null === $motionLine) {
-                    throw new WikiFailedRegExp(
-                        sprintf(
-                            'Failed with %s',
-                            array_flip(get_defined_constants(true)['pcre'])[preg_last_error()]
-                        )
-                    );
-                }
-                $motionLine = preg_replace(
-                    "/(?<![*\s])(\[(\d+)\])/",
+                $motionLine = $this->replaceUsingRegExpStrings(
+                    '/(?<![*\s])(\[(\d+)\])/',
                     '<sup class="sup-\\2">' .
                     '<a class="sup" href="#footnote-\\2" onclick="ClickSup(\\2); return false;">' .
                     '\\1' .
                     '</a></sup>',
                     $motionLine
                 );
-                if (null === $motionLine) {
-                    throw new WikiFailedRegExp(
-                        sprintf(
-                            'Failed with %s',
-                            array_flip(get_defined_constants(true)['pcre'])[preg_last_error()]
-                        )
-                    );
-                }
-                if (preg_match("/^\s\s*$/", $motionLine)) {
+                if (preg_match('/^\s\s*$/', $motionLine)) {
                     continue;
                 }
                 // skip comment lines we lift up for the short sentences
@@ -144,33 +120,17 @@ final class WikiParserProvider implements WikiParserProviderInterface
                         $binUL = 3;
                     } elseif (preg_match('/^\s*\*\s*\[\d+\]/', $motionLine, $matches)) {
                         $binUL = 4;
-                        $footerNumber = preg_replace(
+                        $footerNumber = $this->replaceUsingRegExpStrings(
                             '/[\s\*\[\]]+/',
                             '',
                             $matches[0]
                         );
-                        if (null === $footerNumber) {
-                            throw new WikiFailedRegExp(
-                                sprintf(
-                                    'Failed with %s',
-                                    array_flip(get_defined_constants(true)['pcre'])[preg_last_error()]
-                                )
-                            );
-                        }
-                        if (!is_string($footerNumber)) {
-                            throw new WikiFailedRegExp('Expected a string');
+                        if (!is_numeric($footerNumber)) {
+                            throw new WikiFailedRegExp('Expected something that looked numerical');
                         }
                         $footerNumber = (int)$footerNumber;
                     }
-                    $motionLine = preg_replace('/^(\*\*|\*|:)\s*/', '', $motionLine);
-                    if (null === $motionLine) {
-                        throw new WikiFailedRegExp(
-                            sprintf(
-                                'Failed with %s',
-                                array_flip(get_defined_constants(true)['pcre'])[preg_last_error()]
-                            )
-                        );
-                    }
+                    $motionLine = $this->replaceUsingRegExpStrings('/^(\*\*|\*|:)\s*/', '', $motionLine);
                 } elseif (0 !== $binUL) {
                     $binUL = 0;
                     $res[] = '</ul>';
@@ -203,14 +163,56 @@ final class WikiParserProvider implements WikiParserProviderInterface
             }
             $motion = implode("\n", $res);
         }
-        $motion = $this->cleanHtml($motion);
-        $this->logger->debug(sprintf('Returning motion %s', $motion));
+        $this->logger->debug(
+            'Making safe motion text: {motion}',
+            ['motion' => htmlspecialchars($motion, ENT_QUOTES)]
+        );
+
+        $motion = $this->safeHtmlToNormalHtml($this->htmlToSafeHtml(trim($motion)));
+        $this->logger->debug(
+            'Returning motion text: {motion}',
+            [
+                'motion' => htmlspecialchars($motion, ENT_QUOTES)
+            ]
+        );
 
         return $motion;
     }
 
     /**
+     * Replace text using a regular expression, logging/raising error if appropriate.
+     *
+     * @param string $pattern Search pattern
+     * @param string $replacement Replacement text
+     * @param string $inputString Input string.
+     *
+     * @return string
+     *
+     * @throws WikiFailedRegExp
+     */
+    private function replaceUsingRegExpStrings(string $pattern, string $replacement, string $inputString): string
+    {
+        $output = preg_replace($pattern, $replacement, $inputString);
+        if (null === $output) {
+            $error = array_flip(get_defined_constants(true)['pcre'])[preg_last_error()];
+            $this->logger->error(
+                'Failed to replace using regular expression ({error}) using pattern {pattern} on {input}',
+                [
+                    'pattern' => $pattern,
+                    'replacement' => $replacement,
+                    'error' => $error,
+                    'input' => $inputString
+                ]
+            );
+            throw new WikiFailedRegExp(sprintf('Failed with %s', $error));
+        }
+        return $output;
+    }
+
+    /**
      * Get the motion text from the wiki - suitable for editing.
+     *
+     * PublicWhip v1 function extract_motion_text_from_wiki_text_for_edit
      *
      * @param string $wiki Wiki text to parse.
      * @param string $default If the wiki text was not valid, the text to be returned instead.
@@ -219,56 +221,31 @@ final class WikiParserProvider implements WikiParserProviderInterface
      */
     public function parseMotionTextForEdit(string $wiki, string $default): string
     {
-        if ('' === $wiki) {
-            return $default;
+        $text = $default;
+        if ('' !== $wiki && preg_match('/--- MOTION EFFECT ---(.*)--- COMMENT/s', $wiki, $matches)) {
+            $text = $matches[1];
+            $this->logger->debug('Will be using extracted text from wiki');
         }
-        if (!preg_match('/--- MOTION EFFECT ---(.*)--- COMMENT/s', $wiki, $matches)) {
-            $this->logger->debug(sprintf('Could not parse motion text %s', $wiki));
-            return $default;
-        }
-        $text = $matches[1];
-        $text = preg_replace(
+        $this->logger->debug('Parsing text {text}', ['text' => htmlspecialchars($text, ENT_QUOTES)]);
+        // strip empty items.
+        $text = str_replace(['&#8212;',' class=""', ' pwmotiontext="yes"'], ['-','',''], trim($text));
+        $text = $this->replaceUsingRegExpStrings(
             "/<p\b.*?class=\"italic\".*?>(.*)<\/p>/",
             '<p><i>\\1</i></p>',
             $text
         );
-        if (null === $text) {
-            throw new WikiFailedRegExp(
-                sprintf(
-                    'Failed with %s',
-                    array_flip(get_defined_constants(true)['pcre'])[preg_last_error()]
-                )
-            );
-        }
-        $text = preg_replace(
+        $text = $this->replaceUsingRegExpStrings(
             "/<p\b.*?class=\"indent\".*?>(.*)<\/p>/",
             '<blockquote>\\1</blockquote>',
             $text
         );
-        if (null === $text) {
-            throw new WikiFailedRegExp(
-                sprintf(
-                    'Failed with %s',
-                    array_flip(get_defined_constants(true)['pcre'])[preg_last_error()]
-                )
-            );
-        }
-        if (!\is_string($text)) {
-            throw new WikiFailedRegExp('Expected string');
-        }
-        return $text;
-    }
-
-    /**
-     * Cleans the HTML.
-     *
-     * @param string $html The html to clean.
-     *
-     * @return string
-     */
-    public function cleanHtml(string $html): string
-    {
-        return $this->safeHtmlToNormalHtml($this->stripBadHtml($html));
+        $this->logger->debug(
+            'Returning cleaned up text for edit {editText}',
+            [
+                'editText' => htmlspecialchars($text, ENT_QUOTES)
+            ]
+        );
+        return trim($text);
     }
 
     /**
@@ -283,12 +260,12 @@ final class WikiParserProvider implements WikiParserProviderInterface
     public function safeHtmlToNormalHtml(string $html): string
     {
         $patterns = [
-            "/&amp;(#?[A-Za-z0-9]+?;)/",
+            '/&amp;(#?[A-Za-z0-9]+?;)/',
             '/' . preg_quote(self::SAFE_LESSTHAN, '/') . '/',
             '/' . preg_quote(self::SAFE_GREATERTHAN, '/') . '/',
             '/' . preg_quote(self::SAFE_QUOTE, '/') . '/'
         ];
-        $replace = ['&1', '<', '>', '"'];
+        $replace = ['&\\1', '<', '>', '"'];
         $return = preg_replace($patterns, $replace, $html);
         if (null === $return) {
             throw new WikiFailedRegExp(
@@ -310,15 +287,21 @@ final class WikiParserProvider implements WikiParserProviderInterface
      *
      * @return string
      */
-    public function stripBadHtml(string $text): string
+    public function htmlToSafeHtml(string $text): string
     {
+        $this->logger->debug(
+            'Stripping bad html from {html}',
+            ['html' => htmlspecialchars($text, ENT_QUOTES)]
+        );
         $htmlTagsAllowed = ['a', 'b', 'i', 'p', 'ol', 'ul', 'li', 'blockquote', 'br', 'em', 'sup', 'sub'];
         $htmlRegExp = implode('|', $htmlTagsAllowed);
         $htmlAllowedStripTags = '<' . implode('><', $htmlTagsAllowed) . '>';
         $checkedText = strip_tags($text, $htmlAllowedStripTags);
         $checkedText = preg_replace_callback(
             '/<(' . $htmlRegExp . ')\b(.*?)>/si',
-            [$this, 'filterHtmlAttributes'],
+            function (array $data): string {
+                return self::filterHtmlAttributes($data);
+            },
             $checkedText
         );
         if (null === $checkedText) {
@@ -329,29 +312,18 @@ final class WikiParserProvider implements WikiParserProviderInterface
                 )
             );
         }
-        $checkedText = preg_replace(
+        $checkedText = $this->replaceUsingRegExpStrings(
             '/<\/([^ ' . "\n" . '>]+)[^>]*>/i',
             self::SAFE_LESSTHAN . '/$1' . self::SAFE_GREATERTHAN,
             $checkedText
         );
-        if (null === $checkedText) {
-            throw new WikiFailedRegExp(
-                sprintf(
-                    'Failed with %s',
-                    array_flip(get_defined_constants(true)['pcre'])[preg_last_error()]
-                )
-            );
-        }
-        $checkedText = preg_replace('#^\s+$#m', '', $checkedText);
-        if (null === $checkedText) {
-            throw new WikiFailedRegExp(
-                sprintf(
-                    'Failed with %s',
-                    array_flip(get_defined_constants(true)['pcre'])[preg_last_error()]
-                )
-            );
-        }
+        $checkedText = $this->replaceUsingRegExpStrings('#^\s+$#m', '', $checkedText);
         $checkedText = htmlentities($checkedText, ENT_COMPAT, 'UTF-8');
+        $this->logger->debug(
+            'Returning checked text {checkedText}',
+            ['checkedText' => htmlspecialchars($checkedText, ENT_QUOTES)]
+        );
+
         return $checkedText;
     }
 
@@ -364,7 +336,7 @@ final class WikiParserProvider implements WikiParserProviderInterface
      *
      * @return string
      */
-    public function filterHtmlAttributes(array $arr): string
+    private static function filterHtmlAttributes(array $arr): string
     {
         $element = strtolower($arr[1]);
         $attributes = $arr[2];

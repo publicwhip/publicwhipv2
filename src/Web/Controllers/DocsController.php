@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace PublicWhip\Web\Controllers;
 
+use function in_array;
 use Parsedown;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -86,7 +87,7 @@ class DocsController
             'docs/Contact.md',
             'docs/QuickStart.md'
         ];
-        if (!\in_array($file, $allowedFiles, true)) {
+        if (!in_array($file, $allowedFiles, true)) {
             throw new NotFoundException($request, $response);
         }
         $fullPath = $this->fileRoot . $file;

@@ -45,13 +45,13 @@ final class NotFoundHandler extends AbstractHandler
     {
         // set some defaults
         $contentType = 'text/plain';
-        $output = $this->renderPlainNotFoundOutput();
+        $output = self::renderPlainNotFoundOutput();
 
         if ('OPTIONS' !== $request->getMethod()) {
             $contentType = $this->determineContentType($request);
             switch ($contentType) {
                 case 'application/json':
-                    $output = $this->renderJsonNotFoundOutput();
+                    $output = self::renderJsonNotFoundOutput();
                     break;
 
                 case 'text/html':
@@ -79,7 +79,7 @@ final class NotFoundHandler extends AbstractHandler
      *
      * @return string
      */
-    protected function renderPlainNotFoundOutput(): string
+    private static function renderPlainNotFoundOutput(): string
     {
         return 'Not found';
     }
@@ -89,7 +89,7 @@ final class NotFoundHandler extends AbstractHandler
      *
      * @return string
      */
-    protected function renderJsonNotFoundOutput(): string
+    private static function renderJsonNotFoundOutput(): string
     {
         return '{"message":"Not found"}';
     }
@@ -101,13 +101,13 @@ final class NotFoundHandler extends AbstractHandler
      *
      * @return string
      */
-    protected function renderHtmlNotFoundOutput(ServerRequestInterface $request): string
+    private function renderHtmlNotFoundOutput(ServerRequestInterface $request): string
     {
         $homeUrl = (string)$request->getUri()->withPath('')->withQuery('')->withFragment('');
         $text = <<<END
 <html>
     <head>
-        <title>Public Whip Page Not Found</title>
+        <title>PublicWhip Page Not Found</title>
         <style>
             body{
                 margin:0;
@@ -128,7 +128,7 @@ final class NotFoundHandler extends AbstractHandler
         %s
     </head>
     <body>
-        <h1>Public Whip Page Not Found</h1>
+        <h1>PublicWhip Page Not Found</h1>
         <p>
             The page you are looking for could not be found. Check the address bar
             to ensure your URL is spelled correctly. If all else fails, you can

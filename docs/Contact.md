@@ -5,4 +5,5 @@ The development team behind v2 of PublicWhip can be contacted via [Slack](https:
 via the project on [Github](https://github.com/publicwhip/publicwhipv2), 
 via email at [team@publicwhip.org.uk](mailto:team@publicwhip.org.uk) or [on Twitter](https://twitter.com/publicwhip).
 
-Slack is the preferred method though - but please remember that Public Whip is run on a not-for-profit basis and receives no funding whatsoever - we can't always be available to answer requests.
+Slack is the preferred method though - but please remember that PublicWhip is run on a not-for-profit basis and
+receives no funding whatsoever - we can't always be available to answer requests.

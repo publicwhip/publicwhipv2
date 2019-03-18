@@ -1,0 +1,52 @@
+[
+    {
+        "input": "<p>This is a test with paragraph markers<\/p>",
+        "safeHtml": "[[[p]]]This is a test with paragraph markers[[[\/p]]]",
+        "normalHtml": "<p>This is a test with paragraph markers<\/p>"
+    },
+    {
+        "input": "This has a pound symbol as a decimal code &#163; and as the entity &pound; and as itself \u00a3",
+        "safeHtml": "This has a pound symbol as a decimal code &amp;#163; and as the entity &amp;pound; and as itself &pound;",
+        "normalHtml": "This has a pound symbol as a decimal code &#163; and as the entity &pound; and as itself &pound;"
+    },
+    {
+        "input": "This has \"double quote marks\" as the &quot;entity&quot; and the &#34;decimal code&#34;",
+        "safeHtml": "This has &quot;double quote marks&quot; as the &amp;quot;entity&amp;quot; and the &amp;#34;decimal code&amp;#34;",
+        "normalHtml": "This has &quot;double quote marks&quot; as the &quot;entity&quot; and the &#34;decimal code&#34;"
+    },
+    {
+        "input": "This has 'single quote marks aka apostrophe\\; as the &apos;entity&apos; and the &#39;decimal code&#39;",
+        "safeHtml": "This has 'single quote marks aka apostrophe\\; as the &amp;apos;entity&amp;apos; and the &amp;#39;decimal code&amp;#39;",
+        "normalHtml": "This has 'single quote marks aka apostrophe\\; as the &apos;entity&apos; and the &#39;decimal code&#39;"
+    },
+    {
+        "input": "This has the ampersand as a decimal code &#32; and as the entity &amp; and as itself &.",
+        "safeHtml": "This has the ampersand as a decimal code &amp;#32; and as the entity &amp;amp; and as itself &amp;.",
+        "normalHtml": "This has the ampersand as a decimal code &#32; and as the entity &amp; and as itself &amp;."
+    },
+    {
+        "input": "This has the greater than symbol as a decimal code &#62; and as entity &gt; and as itself >",
+        "safeHtml": "This has the greater than symbol as a decimal code &amp;#62; and as entity &amp;gt; and as itself &gt;",
+        "normalHtml": "This has the greater than symbol as a decimal code &#62; and as entity &gt; and as itself &gt;"
+    },
+    {
+        "input": "This has the less than symbol as a decimal code &#60; and as entity &lt; and as itself <",
+        "safeHtml": "This has the less than symbol as a decimal code &amp;#60; and as entity &amp;lt; and as itself ",
+        "normalHtml": "This has the less than symbol as a decimal code &#60; and as entity &lt; and as itself "
+    },
+    {
+        "input": "This has an <madeup>invented<\/madeup> tag which should be stripped",
+        "safeHtml": "This has an invented tag which should be stripped",
+        "normalHtml": "This has an invented tag which should be stripped"
+    },
+    {
+        "input": "This has a link <a href=\"https:\/\/www.example.com\" invented=\"result\">which should keep only the href<\/a>.",
+        "safeHtml": "This has a link [[[a href={|}https:\/\/www.example.com{|}]]]which should keep only the href[[[\/a]]].",
+        "normalHtml": "This has a link <a href=\"https:\/\/www.example.com\">which should keep only the href<\/a>."
+    },
+    {
+        "input": "This has mdash as the html entity &mdash; the hex code &#x2014;, the decimal code &#8212; and as the character \u2014",
+        "safeHtml": "This has mdash as the html entity &amp;mdash; the hex code &amp;#x2014;, the decimal code &amp;#8212; and as the character &mdash;",
+        "normalHtml": "This has mdash as the html entity &mdash; the hex code &#x2014;, the decimal code &#8212; and as the character &mdash;"
+    }
+]

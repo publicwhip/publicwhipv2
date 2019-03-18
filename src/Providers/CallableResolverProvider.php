@@ -10,7 +10,7 @@ use Slim\Interfaces\CallableResolverInterface;
 /**
  * Resolve middleware and route callables using PHP-DI.
  */
-class CallableResolverProvider implements CallableResolverInterface, CallableResolverProviderInterface
+final class CallableResolverProvider implements CallableResolverInterface, CallableResolverProviderInterface
 {
 
     /**

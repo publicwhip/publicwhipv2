@@ -3,12 +3,17 @@ declare(strict_types=1);
 
 namespace PublicWhip\Factories;
 
+use Closure;
 use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
 use PublicWhip\Entities\DivisionEntity;
-use PublicWhip\Exceptions\Factories\EntityFactoryPassedUnrecognisedFieldException;
+use PublicWhip\Exceptions\Factories\EntityFactoryUnrecognisedFieldException;
 use PublicWhip\Exceptions\Factories\EntityFieldWrongTypeException;
 use PublicWhip\Exceptions\Factories\EntityMissingRequiredFieldException;
+use function get_class;
+use function is_int;
+use function is_object;
+use function is_string;
 
 /**
  * Class EntityFactory.
@@ -55,7 +60,7 @@ final class EntityFactory implements EntityFactoryInterface
          * @param mixed $newValue New value.
          */
         $hydrate = function (object $object, string $property, $newValue): void {
-            \Closure::bind(function () use ($property, $newValue): void {
+            Closure::bind(function () use ($property, $newValue): void {
                 $this->$property = $newValue;
             }, $object, $object)->__invoke();
         };
@@ -67,13 +72,17 @@ final class EntityFactory implements EntityFactoryInterface
          */
         $difference = array_diff(array_keys($data), $fieldsMapped);
         if (count($difference) > 0) {
+            $this->logger->warning(
+                'The entity {entityName} was passed the following field(s) which it does ' .
+                'not know how to handle {fields}',
+                ['entityName' => $entityName, 'fields' => $difference]
+            );
             $message = sprintf(
                 'The entity %s was passed the following field(s) which it does not know how to handle: %s',
-                self::class,
+                $entityName,
                 implode(', ', $difference)
             );
-            $this->logger->warning($message);
-            throw new EntityFactoryPassedUnrecognisedFieldException($message);
+            throw new EntityFactoryUnrecognisedFieldException($message);
         }
         return $new;
     }
@@ -100,23 +109,36 @@ final class EntityFactory implements EntityFactoryInterface
         $fieldsMapped = [];
         foreach ($required as $name => $type) {
             if (!isset($data[$name])) {
+                $this->logger->error(
+                    'Missing required field {fieldName} when building {entityName}',
+                    ['fieldName' => $name, 'entityName' => $entityName]
+                );
                 $message = sprintf(
                     'Missing required field %s when building %s',
                     $name,
                     $entityName
                 );
-                $this->logger->warning($message);
                 throw new EntityMissingRequiredFieldException($message);
             }
             if (!self::checkType($name, $type, $data[$name])) {
+                $actualType = is_object($data[$name]) ? get_class($data[$name]) : gettype($data[$name]);
+                $this->logger->error(
+                    'Expected required entity field {fieldName} to be of type {expectedType}, but ' .
+                    'was {actualType} when creating {entityName}',
+                    [
+                        'fieldName' => $name,
+                        'expectedType' => $type,
+                        'actualType' => $actualType,
+                        'entityName' => $entityName
+                    ]
+                );
                 $message = sprintf(
                     'Expected required entity field %s to be %s, but was %s when creating %s',
                     $name,
                     $type,
-                    \is_object($data[$name]) ? \get_class($data[$name]) : gettype($data[$name]),
+                    $actualType,
                     $entityName
                 );
-                $this->logger->warning($message);
                 throw new EntityFieldWrongTypeException($message);
             }
             $hydrate($new, $name, $data[$name]);
@@ -150,14 +172,24 @@ final class EntityFactory implements EntityFactoryInterface
             if (isset($data[$name])) {
                 $hydrate($new, $name, null);
                 if (!self::checkType($name, $type, $data[$name])) {
+                    $actualType = is_object($data[$name]) ? get_class($data[$name]) : gettype($data[$name]);
+                    $this->logger->error(
+                        'Expected optional entity field {fieldName} to be of type {expectedType}, but ' .
+                        'was {actualType} when creating {entityName}',
+                        [
+                            'fieldName' => $name,
+                            'expectedType' => $type,
+                            'actualType' => $actualType,
+                            'entityName' => $entityName
+                        ]
+                    );
                     $message = sprintf(
-                        'Expected entity field %s to be %s, but was %s when creating %s',
+                        'Expected optional entity field %s to be %s, but was %s when creating %s',
                         $name,
                         $type,
-                        \is_object($data[$name]) ? \get_class($data[$name]) : gettype($data[$name]),
+                        $actualType,
                         $entityName
                     );
-                    $this->logger->warning($message);
                     throw new EntityFieldWrongTypeException($message);
                 }
                 $hydrate($new, $name, $data[$name]);
@@ -181,12 +213,12 @@ final class EntityFactory implements EntityFactoryInterface
         $correctType = true;
         switch ($expectedType) {
             case 'int':
-                if (!\is_int($value)) {
+                if (!is_int($value)) {
                     $correctType = false;
                 }
                 break;
             case 'string':
-                if (!\is_string($value)) {
+                if (!is_string($value)) {
                     $correctType = false;
                 }
                 break;

@@ -52,15 +52,6 @@ interface WikiParserProviderInterface
     public function parseMotionText(string $wiki, string $default): string;
 
     /**
-     * Cleans the HTML.
-     *
-     * @param string $html The html to clean.
-     *
-     * @return string
-     */
-    public function cleanHtml(string $html): string;
-
-    /**
      * Takes our safe html and converts it to normal html.
      *
      * @see https://github.com/publicwhip/publicwhip/blob/a4899135b6957abae85da3fc93c4cc3cf9e4fbc1/website/pretty.inc#L418
@@ -80,16 +71,5 @@ interface WikiParserProviderInterface
      *
      * @return string
      */
-    public function stripBadHtml(string $text): string;
-
-    /**
-     * Only keeps approved attributes of HTML.
-     *
-     * @see https://github.com/publicwhip/publicwhip/blob/a4899135b6957abae85da3fc93c4cc3cf9e4fbc1/website/pretty.inc#L334
-     *
-     * @param string[] $arr Html element and items to strip away.
-     *
-     * @return string
-     */
-    public function filterHtmlAttributes(array $arr): string;
+    public function htmlToSafeHtml(string $text): string;
 }

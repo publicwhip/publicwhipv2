@@ -15,4 +15,8 @@ if (PHP_SAPI === 'cli-server') {
 require dirname(__DIR__) . '/vendor/autoload.php';
 
 $environment = getenv('PUBLICWHIP_ENVIRONMENT') ?: 'production';
-(new Web($environment))->run();
+try {
+    (new Web($environment))->run();
+} catch (Throwable $exception) {
+    print 'There was an unrecoverable error of an unknown type. Aborting.';
+}

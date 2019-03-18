@@ -3,11 +3,11 @@
     <description>PublicWhip  Ruleset.</description>
     <file>src</file>
     <file>tests</file>
+    <file>v1migrationUtils</file>
     <exclude-pattern>./web/*</exclude-pattern>
     <exclude-pattern>./vendor/*</exclude-pattern>
-    <exclude-pattern>./v1migrationUtils/</exclude-pattern>
     <exclude-pattern>./.idea/</exclude-pattern>
-
+    <exclude-pattern>./originalPublicWhipCode/</exclude-pattern>
 
     <!-- Show colors -->
     <config name="colors" value="1"/>
@@ -123,7 +123,8 @@
     <!-- Checks whether uses at the top of a file are alphabetically sorted. -->
     <rule ref="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses"/>
 
-    <!-- Enforces one space after namespace, disallows content between namespace name and semicolon and disallows use of bracketed syntax. -->
+    <!-- Enforces one space after namespace, disallows content between namespace name and semicolon and
+    disallows use of bracketed syntax. -->
     <rule ref="SlevomatCodingStandard.Namespaces.NamespaceDeclaration"/>
 
     <!-- Prohibits multiple uses separated by commas. -->
@@ -167,9 +168,15 @@
     <rule ref="Generic.CodeAnalysis.UnusedFunctionParameter"/>
     <rule ref="Generic.CodeAnalysis.UselessOverridingMethod"/>
     <rule ref="Generic.ControlStructures.InlineControlStructure"/>
+    <rule ref="Generic.ControlStructures.InlineControlStructure"/>
     <rule ref="Generic.Files.ByteOrderMark"/>
-    <rule ref="Generic.Files.LineEndings"/>
+    <rule ref="Generic.Files.LineEndings">
+        <properties>
+            <property name="eolChar" value="\n"/>
+        </properties>
+    </rule>
     <rule ref="Generic.Files.LineLength"/>
+    <rule ref="Generic.Files.OneObjectStructurePerFile"/>
     <rule ref="Generic.Formatting.DisallowMultipleStatements"/>
     <rule ref="Generic.Formatting.NoSpaceAfterCast"/>
     <rule ref="Generic.Functions.CallTimePassByReference"/>
@@ -178,13 +185,28 @@
     <rule ref="Generic.NamingConventions.UpperCaseConstantName"/>
     <rule ref="Generic.NamingConventions.CamelCapsFunctionName"/>
     <rule ref="Generic.PHP.DeprecatedFunctions"/>
+    <rule ref="Generic.PHP.ForbiddenFunctions"/>
     <rule ref="Generic.PHP.DisallowShortOpenTag"/>
+    <rule ref="Generic.PHP.DisallowAlternativePHPTags"/>
     <rule ref="Generic.PHP.ForbiddenFunctions"/>
     <rule ref="Generic.PHP.LowerCaseConstant"/>
     <rule ref="Generic.PHP.NoSilencedErrors"/>
+    <rule ref="Generic.PHP.DiscourageGoto">
+        <type>error</type>
+        <message>The "goto" language construct should not be used.</message>
+    </rule>
+
+    <rule ref="Generic.Strings.UnnecessaryStringConcat">
+        <properties>
+            <property name="allowMultiline" value="true"/>
+        </properties>
+    </rule>
     <rule ref="Generic.WhiteSpace.DisallowTabIndent"/>
     <rule ref="Generic.WhiteSpace.ScopeIndent"/>
-    <rule ref="PEAR.Commenting.FunctionComment"/>
+
+    <rule ref="PEAR.Commenting.FunctionComment.SpacingAfterParamType">
+        <severity>0</severity>
+    </rule>
     <rule ref="PEAR.Commenting.FunctionComment.SpacingAfterParamType">
         <severity>0</severity>
     </rule>
@@ -194,18 +216,36 @@
 
     <rule ref="PEAR.Commenting.InlineComment"/>
     <rule ref="PEAR.ControlStructures.MultiLineCondition"/>
+    <rule ref="PEAR.Files.IncludingFile.BracketsNotRequired">
+        <type>warning</type>
+    </rule>
+    <rule ref="PEAR.Files.IncludingFile.UseRequire">
+        <type>warning</type>
+    </rule>
+    <rule ref="PEAR.Files.IncludingFile.UseRequireOnce">
+        <type>warning</type>
+    </rule>
+
     <rule ref="PSR1.Classes.ClassDeclaration"/>
     <rule ref="PSR2.Classes.ClassDeclaration"/>
     <rule ref="PSR2.Classes.PropertyDeclaration"/>
+    <rule ref="PSR2.Files.EndFileNewline.NoneFound">
+        <severity>0</severity>
+    </rule>
     <rule ref="PSR2.ControlStructures.ControlStructureSpacing"/>
     <rule ref="PSR2.ControlStructures.ElseIfDeclaration"/>
     <rule ref="PSR2.ControlStructures.SwitchDeclaration"/>
     <rule ref="PSR2.Methods.MethodDeclaration"/>
     <rule ref="PSR2.Namespaces.NamespaceDeclaration"/>
     <rule ref="PSR2.Namespaces.UseDeclaration"/>
+
+    <rule ref="Squiz.ControlStructures.ControlSignature"/>
     <rule ref="Squiz.Functions.MultiLineFunctionDeclaration.NewlineBeforeOpenBrace">
         <severity>0</severity>
     </rule>
+    <rule ref="Squiz.Functions.FunctionDuplicateArgument"/>
+    <rule ref="Squiz.Operators.IncrementDecrementUsage"/>
+    <rule ref="Squiz.Operators.ValidLogicalOperators"/>
     <rule ref="Squiz.PHP.DisallowMultipleAssignments"/>
     <rule ref="Squiz.PHP.DisallowSizeFunctionsInLoops"/>
     <rule ref="Squiz.PHP.DiscouragedFunctions">
@@ -214,8 +254,10 @@
         </properties>
     </rule>
     <rule ref="Squiz.PHP.EmbeddedPhp"/>
-    <rule ref="Squiz.PHP.Eval"/>
-    <rule ref="Squiz.PHP.GlobalKeyword"/>
+    <rule ref="Squiz.PHP.Eval.Discouraged">
+        <type>error</type>
+        <message>eval() is a security risk so not allowed.</message>
+    </rule>    <rule ref="Squiz.PHP.GlobalKeyword"/>
     <rule ref="Squiz.PHP.Heredoc"/>
     <rule ref="Squiz.PHP.InnerFunctions"/>
     <rule ref="Squiz.PHP.LowercasePHPFunctions"/>
@@ -223,6 +265,7 @@
     <rule ref="Squiz.Scope.MemberVarScope"/>
     <rule ref="Squiz.Scope.MethodScope"/>
     <rule ref="Squiz.Scope.StaticThisUsage"/>
+    <rule ref="Squiz.Strings.DoubleQuoteUsage.NotRequired"/>
     <rule ref="Squiz.WhiteSpace.CastSpacing"/>
     <rule ref="Squiz.WhiteSpace.ControlStructureSpacing"/>
     <rule ref="Squiz.WhiteSpace.FunctionOpeningBraceSpace"/>

@@ -24,6 +24,6 @@ class IndexController
         ResponseInterface $response
     ): ResponseInterface
     {
-        return $templateProvider->render($response, 'IndexController/indexAction.twig', []);
+        return $templateProvider->render($response, 'IndexController/indexAction.twig');
     }
 }

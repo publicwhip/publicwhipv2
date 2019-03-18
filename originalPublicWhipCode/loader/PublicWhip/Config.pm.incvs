@@ -1,0 +1,22 @@
+package PublicWhip::Config;
+
+# rename this as Config.pm, and edit it with your settings
+
+use vars qw($user $pass $pwdata $debatepath $fileprefix);
+
+$user   = "";
+$pass   = "";
+$dbspec = "DBI:mysql:hansard";
+
+# this is where the XML files come from:
+$pwdata = "/home/username/pwdata/";
+$debatepath = $pwdata . "scrapedxml/divisionsonly/";
+$fileprefix = "divisions";
+$lordsdebatepath = $pwdata . "scrapedxml/lordsdivisionsonly/";
+$lordsfileprefix = "lordsdivisions";
+$scotlanddebatepath = $pwdata . "scrapedxml/sp/";
+$scotlandmotionspath = $pwdata . "scrapedxml/sp-motions/";
+$scotlandfileprefix = "sp";
+$members_location = "/home/username/parlparse/members/";
+
+1;

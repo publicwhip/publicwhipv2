@@ -1,7 +1,18 @@
+includes:
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
 parameters:
-	level: 7
-	paths:
-		- src/
-		- tests/
-	autoload_directories:
-		- tests
+    level: 7
+    paths:
+        - src/
+        - tests/
+    autoload_directories:
+        - tests
+    ignoreErrors:
+        -  '#Only booleans are allowed in #'
+        -
+            message: '#Variable property access on object.#'
+            path: %currentWorkingDirectory%/src/Factories/EntityFactory.php
+        -
+            message: '#Parameter \#4 \$routeArguments \(array\<string\>\) of method#'
+            path: %currentWorkingDirectory%/src/Providers/ControllerInvokerProvider.php
+

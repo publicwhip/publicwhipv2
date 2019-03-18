@@ -135,22 +135,13 @@ final class DivisionService implements DivisionServiceInterface
         ) {
             throw new BadDatabaseReturnException('Not a division');
         }
-        /**
-         * Convert it to an array, removing some text from the motion.
-         */
-        $motionText = str_replace(
-            [' "class=""', ' pwmotiontext="yes"'],
-            '',
-            (string)$basicDivision->motion
-        );
+
         $builtData = [
             'divisionId' => (int)$basicDivision->division_id,
             'date' => $this->dateTimeFactory->dateTimeImmutableFromYyyyMmDd($basicDivision->division_date),
             'number' => (int)$basicDivision->division_number,
             'sourceUrl' => (string)$basicDivision->source_url,
-            'motionText' => $this->wikiParser->cleanHtml($motionText),
-            'originalMotionText' => $basicDivision->motion,
-            'motionTitle' => (string)$basicDivision->division_name,
+            'originalMotionText' => (string)$basicDivision->motion,
             'originalMotionTitle' => (string)$basicDivision->division_name,
             'debateUrl' => (string)$basicDivision->debate_url,
             'house' => (string)$basicDivision->house
@@ -195,25 +186,24 @@ final class DivisionService implements DivisionServiceInterface
             ->where('house', '=', $basicDivision->house)
             ->orderBy('wiki_id', 'DESC')
             ->first();
+        $wikiTextBody = '';
         if ($descriptionData) {
             if (!property_exists($descriptionData, 'text_body')) {
                 throw new BadDatabaseReturnException('Not a wiki_motion');
             }
-            /**
-             * Now to extract the additional fields.
-             */
-            $builtData['motionTitle'] = $this->wikiParser->parseDivisionTitle(
-                $descriptionData->text_body,
-                $builtData['motionTitle']
-            );
-            $builtData['motionText'] = $this->wikiParser->parseMotionText(
-                $descriptionData->text_body,
-                $builtData['originalMotionText']
-            );
+            $wikiTextBody = $descriptionData->text_body;
         }
-        // General tidy up.
-        $builtData['motionTitle'] = trim(strip_tags($builtData['motionTitle']));
-        $builtData['motionTitle'] = str_replace(' &#8212; ', ' - ', $builtData['motionTitle']);
+        /**
+         * Now to extract the additional fields.
+         */
+        $builtData['motionTitle'] = $this->wikiParser->parseDivisionTitle(
+            $wikiTextBody,
+            $basicDivision->division_name
+        );
+        $builtData['motionText'] = $this->wikiParser->parseMotionText(
+            $wikiTextBody,
+            (string)$basicDivision->motion
+        );
         return $this->entityFactory->division($builtData);
     }
 

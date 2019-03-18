@@ -1,0 +1,1 @@
+This is a copy of the PublicWhip v1 source code - included here for reference purposes and cross-checking.

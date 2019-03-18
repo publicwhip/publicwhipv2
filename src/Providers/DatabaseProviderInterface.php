@@ -29,18 +29,14 @@ interface DatabaseProviderInterface
      *
      * @param string[] $config Configuration settings.
      * @param string|null $name Name of the configuration.
-     *
-     * @return void
-     */
+     *     */
     public function addConnection(array $config, ?string $name = null): void;
 
     /**
      * Set the event dispatcher.
      *
      * @param Dispatcher $dispatcher Dispatcher.
-     *
-     * @return void
-     */
+     *     */
     public function setEventDispatcher(Dispatcher $dispatcher): void;
 
     /**
@@ -98,9 +94,7 @@ interface DatabaseProviderInterface
      * Set the container.
      *
      * @param Container $container Set the eloquent container.
-     *
-     * @return void
-     */
+     *     */
     public function setContainer(Container $container): void;
 
     /**
@@ -124,9 +118,7 @@ interface DatabaseProviderInterface
      * Addable to a debugger.
      *
      * @param DebuggerProviderInterface $debugger Debugger to add.
-     *
-     * @return void
-     *
+     *     *
      * @throws DebugBarException
      */
     public function addToDebugger(DebuggerProviderInterface $debugger): void;

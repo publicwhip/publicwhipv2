@@ -5,6 +5,7 @@ namespace PublicWhip\Providers;
 
 use DebugBar\Bridge\SwiftMailer\SwiftLogCollector;
 use DebugBar\Bridge\SwiftMailer\SwiftMailCollector;
+use DebugBar\DebugBarException;
 use RuntimeException;
 use Swift_Mailer;
 use Swift_Message;
@@ -97,7 +98,7 @@ final class MailerProvider implements MailerProviderInterface
      *
      * @param DebuggerProviderInterface $debugger The debugger to add.
      *
-     * @return void
+     * @throws DebugBarException
      */
     public function addToDebugger(DebuggerProviderInterface $debugger): void
     {

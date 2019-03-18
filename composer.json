@@ -1,5 +1,5 @@
 {
-  "name": "bairwell/publicwhip",
+  "name": "publicwhip/publicwhip",
   "description": "Publicwhip v2 website",
   "type": "project",
   "homepage": "https://www.publicwhip.org.uk/",
@@ -69,6 +69,11 @@
   "autoload": {
     "psr-4": {
       "PublicWhip\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "PublicWhip\\Tests\\": "tests/"
     }
   },
   "minimum-stability": "stable"

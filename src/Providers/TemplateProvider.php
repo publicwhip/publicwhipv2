@@ -15,7 +15,7 @@ final class TemplateProvider implements TemplateProviderInterface
     /**
      * @var Twig $twig Our rendering engine.
      */
-    protected $twig;
+    private $twig;
 
     /**
      * TemplateProvider constructor.
@@ -32,12 +32,15 @@ final class TemplateProvider implements TemplateProviderInterface
      *
      * @param ResponseInterface $response Our response to populate.
      * @param string $template Template pathname relative to templates directory
-     * @param array<string, mixed> $data Associative array of template variables
+     * @param array<string, mixed>|null $data Associative array of template variables
      *
      * @return ResponseInterface
      */
-    public function render(ResponseInterface $response, string $template, array $data = []): ResponseInterface
+    public function render(ResponseInterface $response, string $template, ?array $data = null): ResponseInterface
     {
+        if (!$data) {
+            $data = [];
+        }
         return $this->twig->render($response, $template, $data);
     }
 }

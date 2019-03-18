@@ -3,6 +3,17 @@
 These are items that have been done and released. To see what's planned, have a look at the
 [Milestones](Milestones.md).
 
+* 0.4.2 - Ensure division data from v1 is processed correctly: Estimate 1 day. DONE - 2019-03-17
+     
+    Added code from `originalPublicWhipCode` and associated data extractors (in `v1migrationUtils`)
+    to allow for comparisons of wiki stored division data.
+    
+    Added unit tests to check those extractions. Fix problem with code coverage export.
+    
+    More coding style improvements and fixes.
+    
+    Standardise on the spelling/format of `PublicWhip`.
+
 * 0.4.1 - Improved coding style and fixes. DONE - 2019-03-16
 
 * 0.4 - Get accurate information about Divisions showing: Estimate 1-2 days. DONE - 2019-03-15

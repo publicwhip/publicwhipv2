@@ -13,7 +13,6 @@ return [
         'prefix' => ''
     ],
     'settings.logger' => [
-        'name' => 'publicwhip',
         'path' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'app.log'
     ],
     'settings.mail' => [
@@ -24,5 +23,5 @@ return [
         'password' => ''
     ],
     'settings.debug' => false,
-    'settings.templates.cache' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'cache',
+    'settings.templates.cache' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'cache'
 ];

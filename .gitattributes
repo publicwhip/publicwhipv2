@@ -4,6 +4,7 @@ docker/ export-ignore
 qa/ export-ignore
 docs/ export-ignore
 database/ export-ignore
+originalPublicWhipCode/ export-ignore
 
 # Auto detect text files and perform LF normalization
 * text=auto

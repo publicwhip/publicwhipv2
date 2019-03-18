@@ -10,6 +10,8 @@ use Slim\Handlers\AbstractError;
 use Slim\Http\Body;
 use Throwable;
 use UnexpectedValueException;
+use function get_class;
+use function is_string;
 
 /**
  * Class ErrorHandler.
@@ -108,9 +110,9 @@ final class ErrorHandler extends AbstractError
 
         $output = sprintf(
             "<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'>" .
-            "<title>%s</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana," .
-            "sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{" .
-            "display:inline-block;width:65px;}</style>%s</head><body><h1>%s</h1>%s%s</body></html>",
+            '<title>%s</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,' .
+            'sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{' .
+            'display:inline-block;width:65px;}</style>%s</head><body><h1>%s</h1>%s%s</body></html>',
             $title,
             $debugHead,
             $title,
@@ -128,9 +130,9 @@ final class ErrorHandler extends AbstractError
      *
      * @return string
      */
-    protected function renderHtmlExceptionOrError(Throwable $throwable): string
+    private function renderHtmlExceptionOrError(Throwable $throwable): string
     {
-        $html = sprintf('<div><strong>Type:</strong> %s</div>', \get_class($throwable));
+        $html = sprintf('<div><strong>Type:</strong> %s</div>', get_class($throwable));
 
         if ($throwable->getCode()) {
             $html .= sprintf('<div><strong>Code:</strong> %s</div>', $throwable->getCode());
@@ -172,7 +174,7 @@ final class ErrorHandler extends AbstractError
     private function renderJsonErrorMessage(Throwable $throwable): string
     {
         $error = [
-            'message' => 'PublicWhip Application Error',
+            'message' => 'PublicWhip Application Error'
         ];
 
         if ($this->displayErrorDetails) {
@@ -180,19 +182,19 @@ final class ErrorHandler extends AbstractError
 
             do {
                 $error['exception'][] = [
-                    'type' => \get_class($throwable),
+                    'type' => get_class($throwable),
                     'code' => $throwable->getCode(),
                     'message' => $throwable->getMessage(),
                     'file' => $throwable->getFile(),
                     'line' => $throwable->getLine(),
-                    'trace' => explode("\n", $throwable->getTraceAsString()),
+                    'trace' => explode("\n", $throwable->getTraceAsString())
                 ];
                 $throwable = $throwable->getPrevious();
             } while ($throwable);
         }
 
         $encoded = json_encode($error, JSON_PRETTY_PRINT);
-        if (!\is_string($encoded)) {
+        if (!is_string($encoded)) {
             $encoded = '[]';
         }
         return $encoded;

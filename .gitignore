@@ -32,3 +32,15 @@ qa/*
 .php_cs.cache
 # We don't want vendor to accidentally make it into the repo.
 vendor/*
+
+# For the legacy code.
+originalPublicWhipCode/loader/PublicWhip/Config.pm
+originalPublicWhipCode/website/.htaccess
+originalPublicWhipCode/website/.well-known
+originalPublicWhipCode/website/config.php
+originalPublicWhipCode/website/google*
+originalPublicWhipCode/website/data/votematrix*
+originalPublicWhipCode/website/data/*.bz2
+originalPublicWhipCode/website/feeds/interestingdivisions.xml
+originalPublicWhipCode/website/data/popolo/*.json
+originalPublicWhipCode/postcodecache/*.json

@@ -23,13 +23,12 @@ return [
         'prefix' => ''
     ],
     'settings.logger' => [
-        'name' => 'publicwhip',
         'path' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'app.log'
     ],
     'settings.mail' => [
         'transport' => 'null'
     ],
     'settings.debug' => true,
-    'settings.templates.cache' => false,
+    'settings.templates.cache' => false
 
 ];

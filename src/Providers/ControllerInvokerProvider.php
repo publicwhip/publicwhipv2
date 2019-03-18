@@ -57,7 +57,7 @@ class ControllerInvokerProvider implements InvocationStrategyInterface
         // Inject the request and response by parameter name
         $parameters = [
             'request' => $request,
-            'response' => $response,
+            'response' => $response
         ];
 
         // Inject the route arguments by name
