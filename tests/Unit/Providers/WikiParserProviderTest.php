@@ -169,5 +169,4 @@ final class WikiParserProviderTest extends TestCase
             self::assertSame($entry['safeHtml'], $output);
         }
     }
-
 }
