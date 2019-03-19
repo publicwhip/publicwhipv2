@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace PublicWhip;
 
@@ -35,6 +35,8 @@ use PublicWhip\Providers\DebuggerProviderInterface;
 use PublicWhip\Providers\DebuggerTwigExtension;
 use PublicWhip\Providers\MailerProvider;
 use PublicWhip\Providers\MailerProviderInterface;
+use PublicWhip\Providers\MailerTransportProvider;
+use PublicWhip\Providers\MailerTransportProviderInterface;
 use PublicWhip\Providers\TemplateProvider;
 use PublicWhip\Providers\TemplateProviderInterface;
 use PublicWhip\Providers\WikiParserProvider;
@@ -44,6 +46,7 @@ use PublicWhip\Services\DivisionServiceInterface;
 use PublicWhip\Web\ErrorHandlers\ErrorHandler;
 use PublicWhip\Web\ErrorHandlers\NotFoundHandler;
 use PublicWhip\Web\ErrorHandlers\PhpErrorHandler;
+use RuntimeException;
 use Slim\Csrf\Guard;
 use Slim\Flash\Messages;
 use Slim\Handlers\NotAllowed;
@@ -59,13 +62,12 @@ use Slim\Views\TwigExtension;
 use function DI\autowire;
 use function DI\create;
 use function DI\get;
+use function is_array;
+use function is_string;
 
 /**
- * Class Config.
- *
  * Handles setting up the services/settings which are needed. This primarily populates
  * a PHP-DI container.
- *
  * Since we configure practically everything here, we have a high coupling between objects. We'll
  * tell PHPMD this is okay.
  *
@@ -73,11 +75,10 @@ use function DI\get;
  */
 class Config
 {
-
     /**
      * Settings/services configuration needed for the web environment.
      *
-     * @return array<string, mixed>
+     * @return array<string, array|bool|(callable)|object|int|string>
      */
     public function getWebConfig(): array
     {
@@ -91,6 +92,7 @@ class Config
             TwigExtension::class => static function (ContainerInterface $container): TwigExtension {
                 $router = $container->get('router');
                 $uri = $container->get('request')->getUri();
+
                 return new TwigExtension($router, $uri);
             },
             TemplateProviderInterface::class => autowire(TemplateProvider::class),
@@ -126,6 +128,7 @@ class Config
             // setup parsedown for markdown formatting.
             Parsedown::class => create()
         ];
+
         return array_merge($this->generalSlimSetup(), $return);
     }
 
@@ -133,9 +136,9 @@ class Config
      * Get the general Slim settings.
      * /**
      * Disable this PHPMD warning for simplicity when building the environment using Request::.
-     * @SuppressWarnings(PHPMD.StaticAccess)
      *
-     * @return array<string, mixed>):
+     * @SuppressWarnings(PHPMD.StaticAccess)
+     * @return array<string, array|bool|(callable)|object|int|string>
      */
     private function generalSlimSetup(): array
     {
@@ -173,15 +176,16 @@ class Config
                 return new Environment($_SERVER);
             },
 
-
             'request' => static function (ContainerInterface $container) {
                 return Request::createFromEnvironment($container->get('environment'));
             },
 
             'response' => static function (ContainerInterface $container) {
                 $headers = new Headers(['Content-Type' => 'text/html; charset=UTF-8']);
+
                 return (new Response(200, $headers))->withProtocolVersion($container->get('settings')['httpVersion']);
             },
+
             'foundHandler' => create(ControllerInvokerProvider::class)
                 ->constructor(get('foundHandler.invoker')),
             'foundHandler.invoker' => static function (ContainerInterface $container) {
@@ -193,6 +197,7 @@ class Config
                     // Then fall back on parameters default values for optional route parameters
                     new DefaultValueResolver()
                 ];
+
                 return new Invoker(new ResolverChain($resolvers), $container);
             },
 
@@ -203,7 +208,7 @@ class Config
     /**
      * The general configurations needed to run the system (no matter what environment).
      *
-     * @return array<string, mixed>
+     * @return array<string, array|bool|(callable)|object|int|string>
      */
     public function getGeneralConfig(): array
     {
@@ -224,9 +229,11 @@ class Config
                 $logger->pushProcessor(new MemoryUsageProcessor());
                 $logger->pushHandler(new StreamHandler($settings['path'], Logger::DEBUG));
                 $logger->pushProcessor(new IntrospectionProcessor());
+
                 if ($container->get('settings.isWeb') && $container->has('environment')) {
                     $logger->pushProcessor(new WebProcessor($container->get('environment')));
                 }
+
                 // add it to the debugger
                 $debugger = $container->get(DebuggerProviderInterface::class);
                 $debugger->addDataCollector(new MonologCollector($logger));
@@ -252,15 +259,35 @@ class Config
             DatabaseProviderInterface::class => create(DatabaseProvider::class)
                 ->constructor(get('settings.db'))
                 ->method('addToDebugger', get(DebuggerProviderInterface::class)),
-            MailerProviderInterface::class => create(MailerProvider::class)
-                ->constructor(get('settings.mail'))
-                ->method('addToDebugger', get(DebuggerProviderInterface::class)),
+
+            MailerProviderInterface::class => static function (ContainerInterface $container): MailerProviderInterface {
+                /** @var array<string,string>|null $settings */
+                $settings = $container->get('settings.mail');
+                if (!is_array($settings)) {
+                    throw new RuntimeException('Missing settings.mail');
+                }
+                if (!isset($settings['fromname']) || !is_string($settings['fromname'])) {
+                    throw new RuntimeException('Missing settings.mail.fromname');
+                }
+                if (!isset($settings['fromaddress']) || !is_string($settings['fromaddress'])) {
+                    throw new RuntimeException('Missing settings.mail.fromaddress');
+                }
+                $provider = new MailerProvider(
+                    $container->get(MailerTransportProviderInterface::class),
+                    $settings['fromname'],
+                    $settings['fromaddress']
+                );
+                $provider->addToDebugger($container->get(DebuggerProviderInterface::class));
+
+                return $provider;
+            },
+            MailerTransportProviderInterface::class => create(MailerTransportProvider::class)
+                ->constructor(get('settings.mail')),
             DebuggerProviderInterface::class => create(DebuggerProvider::class)
                 ->constructor(get('settings.debug')),
 
             WikiParserProviderInterface::class => autowire(WikiParserProvider::class)
                 ->constructorParameter('logger', get('logger.providers'))
-
 
         ];
         /**
@@ -279,6 +306,7 @@ class Config
             DivisionServiceInterface::class => autowire(DivisionService::class)
                 ->constructorParameter('logger', get('logger.services'))
         ];
+
         return array_merge($defaultSettings, $loggers, $providers, $factories, $services);
     }
 }

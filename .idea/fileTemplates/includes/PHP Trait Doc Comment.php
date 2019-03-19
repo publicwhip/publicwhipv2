@@ -1,3 +1,3 @@
 /**
- * Trait ${NAME}.
+ * ${NAME}.
  */

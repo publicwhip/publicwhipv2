@@ -1,7 +1,8 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 $definitions = require __DIR__ . DIRECTORY_SEPARATOR . 'develop.php';
+
 return array_merge(
     $definitions,
     [
@@ -16,11 +17,13 @@ return array_merge(
             'prefix' => ''
         ],
         'settings.mail' => [
-            'transport' => 'sendmail',
+            'transport' => 'smtp',
             'host' => 'mailhog',
             'port' => 1025,
             'username' => '',
-            'password' => ''
+            'password' => '',
+            'fromname' => 'PublicWhip Development',
+            'fromaddress' => 'null@publicwhip.org.uk'
         ]
     ]
 );

@@ -1,26 +1,27 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace PublicWhip\Providers;
 
 use Invoker\CallableResolver;
 use Invoker\Exception\NotCallableException;
-use Slim\Interfaces\CallableResolverInterface;
 
 /**
  * Resolve middleware and route callables using PHP-DI.
+ *
+ * Coding standard disabled for Slim compatibility.
+ * phpcs:disable SlevomatCodingStandard.TypeHints.DisallowMixedTypeHint.DisallowedMixedTypeHint
  */
-final class CallableResolverProvider implements CallableResolverInterface, CallableResolverProviderInterface
+final class CallableResolverProvider implements CallableResolverProviderInterface
 {
-
     /**
+     * The resolver.
+     *
      * @var CallableResolver
      */
     private $callableResolver;
 
     /**
-     * Constructor.
-     *
      * @param CallableResolver $callableResolver The resolver.
      */
     public function __construct(CallableResolver $callableResolver)
@@ -29,8 +30,9 @@ final class CallableResolverProvider implements CallableResolverInterface, Calla
     }
 
     /**
-     * @param mixed $toResolve What to resolve.
+     * Resolve the callable
      *
+     * @param mixed $toResolve What to resolve.
      * @return callable The callable.
      * @throws NotCallableException
      */

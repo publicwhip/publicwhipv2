@@ -1,5 +1,6 @@
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon
+    - vendor/phpstan/phpstan-phpunit/extension.neon
 parameters:
     level: 7
     paths:
@@ -13,6 +14,6 @@ parameters:
             message: '#Variable property access on object.#'
             path: %currentWorkingDirectory%/src/Factories/EntityFactory.php
         -
-            message: '#Parameter \#4 \$routeArguments \(array\<string\>\) of method#'
+            message: '#Parameter \#4 \$routeArguments \(array\<string,#'
             path: %currentWorkingDirectory%/src/Providers/ControllerInvokerProvider.php
 

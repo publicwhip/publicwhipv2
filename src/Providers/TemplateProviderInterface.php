@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace PublicWhip\Providers;
 
@@ -7,14 +7,12 @@ use Psr\Http\Message\ResponseInterface;
 use Slim\Views\Twig;
 
 /**
- * Class TemplateProvider
+ * Templating engine provider.
+ * TemplateProviderInterface.
  */
 interface TemplateProviderInterface
 {
-
     /**
-     * TemplateProvider constructor.
-     *
      * @param Twig $twig The template engine. Only twig currently supported.
      */
     public function __construct(Twig $twig);
@@ -24,8 +22,7 @@ interface TemplateProviderInterface
      *
      * @param ResponseInterface $response Our response to populate.
      * @param string $template Template pathname relative to templates directory
-     * @param array<string, mixed>|null $data Associative array of template variables
-     *
+     * @param array<string, string|int|array|bool|object>|null $data Associative array of template variables
      * @return ResponseInterface
      */
     public function render(ResponseInterface $response, string $template, ?array $data = null): ResponseInterface;

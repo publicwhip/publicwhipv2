@@ -12,7 +12,6 @@ If you are considering [Contributing](docs/CONTRIBUTING.md) to the development o
 read the [Code of Conduct](docs/CODE_OF_CONDUCT.md) first. All contributions to PublicWhip v2 must be licensed under
 the [MIT](LICENSE.txt) license allowing free usage of the code in any form without restriction.
 
-[![Coverage Status](https://coveralls.io/repos/github/publicwhip/publicwhipv2/badge.svg?branch=master)](https://coveralls.io/github/publicwhip/publicwhipv2?branch=master)
 [![CircleCI](https://circleci.com/gh/publicwhip/publicwhipv2/tree/master.svg?style=svg)](https://circleci.com/gh/publicwhip/publicwhipv2/tree/master)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Slack Join Chat](https://img.shields.io/badge/Slack-Join_Chat-blue.svg)](https://join.slack.com/t/publicwhip/shared_invite/enQtNTczMTg1MTc1Mzc3LTAxMjkyYzNhNWY0NDdmY2EzYjYwNTZjNjQ1YTNiOTQwZWYzM2Q0ZDJjOWU5MTVjNzZmNGFjMzljY2U0ZjA0YjM)

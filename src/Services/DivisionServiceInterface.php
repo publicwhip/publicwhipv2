@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace PublicWhip\Services;
 
@@ -12,16 +12,12 @@ use PublicWhip\Providers\WikiParserProviderInterface;
 use ReflectionException;
 
 /**
- * Class DivisionService.
- *
  * Reads/writes divisions.
- *
  */
 interface DivisionServiceInterface
 {
-
     /**
-     * DivisionService constructor.
+     *  Setup the division service.
      *
      * @param DatabaseProviderInterface $databaseProvider Database connection layer.
      * @param EntityFactoryInterface $entityFactory Entity factory.
@@ -40,7 +36,7 @@ interface DivisionServiceInterface
     /**
      * Get the latest division date (usually used to ensure data is up to date).
      *
-     * @return string
+     * @return string In YYYY-MM-DD format.
      */
     public function getNewestDivisionDate(): string;
 
@@ -48,8 +44,7 @@ interface DivisionServiceInterface
      * Find a division by its numerical id.
      *
      * @param int $divisionId Numerical id of the division.
-     *
-     * @return DivisionEntity|null
+     * @return DivisionEntity|null Null if not found.
      */
     public function findByDivisionId(int $divisionId): ?DivisionEntity;
 
@@ -59,7 +54,6 @@ interface DivisionServiceInterface
      * @param string $house Name of the house - probably 'commons','lords' or 'scotland'
      * @param string $date Date in YYYY-MM-DD of the division.
      * @param int $divisionNumber Number of the division.
-     *
      * @return DivisionEntity|null Entity if found.
      * @throws ReflectionException
      */

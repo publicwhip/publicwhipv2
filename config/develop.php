@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
@@ -26,7 +26,9 @@ return [
         'path' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'app.log'
     ],
     'settings.mail' => [
-        'transport' => 'null'
+        'transport' => 'null',
+        'fromname' => 'PublicWhip Development',
+        'fromaddress' => 'null@publicwhip.localdomain'
     ],
     'settings.debug' => true,
     'settings.templates.cache' => false

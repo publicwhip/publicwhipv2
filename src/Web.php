@@ -1,80 +1,62 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace PublicWhip;
 
 use DI\ContainerBuilder;
-use Exception;
 use Psr\Http\Message\ResponseInterface;
 use PublicWhip\Exceptions\MissingConfigurationException;
 use PublicWhip\Web\Routing;
 use Slim\App;
 use Slim\Exception\MethodNotAllowedException;
 use Slim\Exception\NotFoundException;
+use Throwable;
 
 /**
- * Class Web.
- *
- * Handles web access to PublicWhip.
- *
+ *  Handles web access to PublicWhip.
  */
 class Web
 {
-
     /**
+     * Environment details.
+     *
      * @var string
      */
     private $environment;
 
     /**
-     * @var App The Slim Application.
+     * The Slim Application.
+     *
+     * @var App
      */
     private $app;
 
     /**
-     * Web constructor.
+     * Sets up the system.
      *
      * @param string $environment The name of the environment are setting up.
      * @param App|null $app The optional pre-built app.
-     *
-     * @throws Exception
+     * @throws Throwable
      */
     public function __construct(string $environment, ?App $app = null)
     {
         $this->environment = $environment;
+
         if (null === $app) {
             $containerBuilder = new ContainerBuilder();
             $this->configureContainer($containerBuilder);
             $container = $containerBuilder->build();
             $app = new App($container);
         }
-        $this->app = $app;
-    }
 
-    /**
-     * Main runner.
-     **
-     *
-     * @return ResponseInterface The response interface.
-     *
-     * @throws MethodNotAllowedException
-     * @throws NotFoundException
-     */
-    public function run(): ResponseInterface
-    {
-        $routing = new Routing();
-        $routing->getRouting($this->app);
-        $routing->setupTrailingSlash($this->app);
-        return $this->app->run();
+        $this->app = $app;
     }
 
     /**
      * Configure the dependency injector container.
      *
      * @TODO Add caching if appropriate on production.
-     *
      * @param ContainerBuilder $builder The container we we populating.
-     *
      * @throws MissingConfigurationException
      */
     protected function configureContainer(ContainerBuilder $builder): void
@@ -89,6 +71,7 @@ class Web
             DIRECTORY_SEPARATOR . '..' .
             DIRECTORY_SEPARATOR . 'config' .
             DIRECTORY_SEPARATOR . $this->environment . '.php';
+
         if (!file_exists($settingsFile) && is_readable($settingsFile)) {
             throw new MissingConfigurationException(
                 sprintf(
@@ -97,6 +80,24 @@ class Web
                 )
             );
         }
+
         $builder->addDefinitions($settingsFile);
+    }
+
+    /**
+     * Main runner.
+     **
+     *
+     * @return ResponseInterface The response interface.
+     * @throws MethodNotAllowedException
+     * @throws NotFoundException
+     */
+    public function run(): ResponseInterface
+    {
+        $routing = new Routing();
+        $routing->getRouting($this->app);
+        $routing->setupTrailingSlash($this->app);
+
+        return $this->app->run();
     }
 }

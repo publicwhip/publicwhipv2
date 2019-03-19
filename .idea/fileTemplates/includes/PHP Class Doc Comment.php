@@ -1,3 +1,3 @@
 /**
- * Class ${NAME}.
+ * ${NAME}.
  */

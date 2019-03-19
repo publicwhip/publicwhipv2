@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace PublicWhip\Web\ErrorHandlers;
 
@@ -74,6 +74,43 @@ final class PhpErrorHandler extends AbstractError
     }
 
     /**
+     * Render JSON error
+     *
+     * @param Throwable $error
+     *
+     * @return string
+     */
+    private function renderJsonErrorMessage(Throwable $error): string
+    {
+        $json = [
+            'message' => 'PublicWhip Application Error'
+        ];
+
+        if ($this->displayErrorDetails) {
+            $json['error'] = [];
+
+            $error = $error->getPrevious();
+            while ($error) {
+                $json['error'][] = [
+                    'type' => get_class($error),
+                    'code' => $error->getCode(),
+                    'message' => $error->getMessage(),
+                    'file' => $error->getFile(),
+                    'line' => $error->getLine(),
+                    'trace' => explode("\n", $error->getTraceAsString())
+                ];
+                $error = $error->getPrevious();
+            }
+        }
+
+        $encoded = json_encode($json, JSON_PRETTY_PRINT);
+        if (false === $encoded) {
+            return '{"message":"Unrecoverable server error"}';
+        }
+        return $encoded;
+    }
+
+    /**
      * Render HTML error page
      *
      * @param Throwable $error The error that was thrown.
@@ -116,7 +153,6 @@ final class PhpErrorHandler extends AbstractError
         return $output;
     }
 
-
     /**
      * Render error as HTML.
      *
@@ -152,42 +188,5 @@ final class PhpErrorHandler extends AbstractError
         }
 
         return $html;
-    }
-
-    /**
-     * Render JSON error
-     *
-     * @param Throwable $error
-     *
-     * @return string
-     */
-    private function renderJsonErrorMessage(Throwable $error): string
-    {
-        $json = [
-            'message' => 'PublicWhip Application Error'
-        ];
-
-        if ($this->displayErrorDetails) {
-            $json['error'] = [];
-
-            $error = $error->getPrevious();
-            while ($error) {
-                $json['error'][] = [
-                    'type' => get_class($error),
-                    'code' => $error->getCode(),
-                    'message' => $error->getMessage(),
-                    'file' => $error->getFile(),
-                    'line' => $error->getLine(),
-                    'trace' => explode("\n", $error->getTraceAsString())
-                ];
-                $error = $error->getPrevious();
-            }
-        }
-
-        $encoded = json_encode($json, JSON_PRETTY_PRINT);
-        if (false === $encoded) {
-            return '{"message":"Unrecoverable server error"}';
-        }
-        return $encoded;
     }
 }

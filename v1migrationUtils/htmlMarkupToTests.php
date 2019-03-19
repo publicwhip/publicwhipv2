@@ -1,5 +1,7 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
+
+namespace PublicWhip\v1migrationUtils;
 
 /**
  * Generates the test data for the wiki HTML markup tests.
@@ -21,6 +23,7 @@ $inputHtml = [
     . 'and as the character ' . mb_chr(8212, 'utf-8')
 ];
 $out = [];
+
 foreach ($inputHtml as $line) {
     $guyed = guy_strip_bad($line);
     $out[] = [
@@ -29,6 +32,7 @@ foreach ($inputHtml as $line) {
         'normalHtml' => guy2html($guyed)
     ];
 }
+
 file_put_contents(
     __DIR__ .
     DIRECTORY_SEPARATOR . '..' .

@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace PublicWhip\Tests\Unit\Providers;
 
@@ -11,18 +11,17 @@ use RuntimeException;
 use function is_array;
 
 /**
- * Class WikiParserProviderTest.
+ * WikiParserProviderTest.
  *
  * @coversDefaultClass \PublicWhip\Providers\WikiParserProvider
  * @covers \PublicWhip\Providers\WikiParserProvider::<!public>
  */
 final class WikiParserProviderTest extends TestCase
 {
-
     /**
      * Cached division test data.
      *
-     * @var array<int,array<mixed>>|null $cachedDivisionTestData
+     * @var array<int, array<string, array<string, string>>>|null $cachedDivisionTestData
      */
     private $cachedDivisionTestData;
 
@@ -43,39 +42,49 @@ final class WikiParserProviderTest extends TestCase
         if (is_array($this->cachedHtmlMarkupTestData)) {
             return $this->cachedHtmlMarkupTestData;
         }
+
         $contents = file_get_contents(
             __DIR__ . DIRECTORY_SEPARATOR . 'WikiParserProvider' . DIRECTORY_SEPARATOR . 'html.json'
         );
+
         if (!$contents) {
             throw new RuntimeException('Unable to load test data html.json');
         }
+
         $this->cachedHtmlMarkupTestData = json_decode($contents, true);
+
         if (!$this->cachedHtmlMarkupTestData) {
             throw new RuntimeException('Unable to parse test data html.json: ' . json_last_error_msg());
         }
+
         return $this->cachedHtmlMarkupTestData;
     }
 
     /**
      * Get the mock divisions.
      *
-     * @return array<int,array<mixed>>
+     * @return array<int, array<string, array<string, string>>>
      */
     private function getMockDivisions(): array
     {
         if (is_array($this->cachedDivisionTestData)) {
             return $this->cachedDivisionTestData;
         }
+
         $contents = file_get_contents(
             __DIR__ . DIRECTORY_SEPARATOR . 'WikiParserProvider' . DIRECTORY_SEPARATOR . 'mockDivisions.json'
         );
+
         if (!$contents) {
             throw new RuntimeException('Unable to load test data mockDivisions.json');
         }
+
         $this->cachedDivisionTestData = json_decode($contents, true);
+
         if (!$this->cachedDivisionTestData) {
             throw new RuntimeException('Unable to parse test data mockDivisions.json: ' . json_last_error_msg());
         }
+
         return $this->cachedDivisionTestData;
     }
 
@@ -83,7 +92,6 @@ final class WikiParserProviderTest extends TestCase
      * Check we render all division titles the same as v1.
      *
      * @covers ::parseDivisionTitle
-     * @return void
      * @throws ReflectionException
      */
     public function testParseDivisionTitle(): void
@@ -91,6 +99,7 @@ final class WikiParserProviderTest extends TestCase
         /** @var LoggerInterface $logger */
         $logger = $this->createMock(LoggerInterface::class);
         $sut = new WikiParserProvider($logger);
+
         foreach ($this->getMockDivisions() as $divisionId => $divisionEntry) {
             $lastWiki = last($divisionEntry['wiki']);
             $newTitle = $sut->parseDivisionTitle(
@@ -108,16 +117,17 @@ final class WikiParserProviderTest extends TestCase
     /**
      * Check we render all division texts the same as v1.
      *
+     * @throws ReflectionException
+     *
      * @covers ::parseMotionText
      * @covers ::parseMotionTextForEdit
-     * @return void
-     * @throws ReflectionException
      */
     public function testParseMotionText(): void
     {
         /** @var LoggerInterface $logger */
         $logger = $this->createMock(LoggerInterface::class);
         $sut = new WikiParserProvider($logger);
+
         foreach ($this->getMockDivisions() as $divisionId => $divisionEntry) {
             // we are comparing the last entry.
             $lastWiki = last($divisionEntry['wiki']);
@@ -137,8 +147,9 @@ final class WikiParserProviderTest extends TestCase
     /**
      * Checks we can convert back from safe html to normal html.
      *
-     * @covers ::safeHtmlToNormalHtml
      * @throws ReflectionException
+     *
+     * @covers ::safeHtmlToNormalHtml
      */
     public function testSafeHtmlToNormalHtml(): void
     {
@@ -146,6 +157,7 @@ final class WikiParserProviderTest extends TestCase
         /** @var LoggerInterface $logger */
         $logger = $this->createMock(LoggerInterface::class);
         $sut = new WikiParserProvider($logger);
+
         foreach ($testData as $entry) {
             $output = $sut->safeHtmlToNormalHtml($entry['safeHtml']);
             self::assertSame($entry['normalHtml'], $output);
@@ -155,8 +167,9 @@ final class WikiParserProviderTest extends TestCase
     /**
      * Checks we convert html to the expected safe format.
      *
-     * @covers ::htmlToSafeHtml
      * @throws ReflectionException
+     *
+     * @covers ::htmlToSafeHtml
      */
     public function testHtmlToSafeHtml(): void
     {
@@ -164,6 +177,7 @@ final class WikiParserProviderTest extends TestCase
         /** @var LoggerInterface $logger */
         $logger = $this->createMock(LoggerInterface::class);
         $sut = new WikiParserProvider($logger);
+
         foreach ($testData as $entry) {
             $output = $sut->htmlToSafeHtml($entry['input']);
             self::assertSame($entry['safeHtml'], $output);

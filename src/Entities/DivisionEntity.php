@@ -1,88 +1,118 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace PublicWhip\Entities;
 
 use DateTimeImmutable;
 
 /**
- * Class DivisionEntity
+ * DivisionEntity.
+ *
+ * A division is the details of the motion - when it was, which house etc.
  */
 final class DivisionEntity
 {
-
     /**
-     * @var int Id of the division.
+     * Id of the division.
+     *
+     * @var int
      */
     private $divisionId;
 
     /**
+     * Date of the division.
+     *
      * @var DateTimeImmutable
      */
     private $date;
 
     /**
-     * @var int Number of the division.
+     * Number of the division on that date.
+     *
+     * @var int
      */
     private $number;
 
     /**
-     * @var string Source of the division.
+     * Source of the division.
+     *
+     * @var string
      */
     private $sourceUrl;
 
     /**
-     * @var string Url of the debate.
+     * Url of the debate.
+     *
+     * @var string
      */
     private $debateUrl;
 
     /**
-     * @var string Text of the motion.
+     * Text of the motion.
+     *
+     * @var string
      */
     private $motionText;
 
     /**
-     * @var string Title of the motion.
+     * Title of the motion.
+     *
+     * @var string
      */
     private $motionTitle;
 
     /**
-     * @var string Original text of the motion/division.
+     * Original text of the motion/division.
+     *
+     * @var string
      */
     private $originalMotionText;
 
     /**
-     * @var string Original title of the motion/division.
+     * Original title of the motion/division.
+     *
+     * @var string
      */
     private $originalMotionTitle;
 
     /**
-     * @var string House.
+     * House.
+     *
+     * @var string
      */
     private $house;
 
     /**
-     * @var int|null Number of rebellions.
+     * Number of rebellions.
+     *
+     * @var int|null
      */
     private $rebellions;
 
     /**
-     * @var int|null Total number of votes.
+     * Total number of votes.
+     *
+     * @var int|null
      */
     private $turnout;
 
     /**
-     * @var int|null Number of possible votes.
+     * Number of possible votes.
+     *
+     * @var int|null
      */
     private $possibleTurnout;
 
     /**
-     * @var int|null Majority of the 'ayes'. May be negative.
+     * Majority of the 'ayes'. May be negative.
+     *
+     * @var int|null
      */
     private $ayeMajority;
 
     /**
      * Get the division id.
+     *
      * @return int
      */
     public function getDivisionId(): int
@@ -92,6 +122,7 @@ final class DivisionEntity
 
     /**
      * Get the date of the division.
+     *
      * @return DateTimeImmutable
      */
     public function getDate(): DateTimeImmutable
@@ -101,6 +132,7 @@ final class DivisionEntity
 
     /**
      * Get the number of the division for this day.
+     *
      * @return int
      */
     public function getNumber(): int
@@ -110,6 +142,7 @@ final class DivisionEntity
 
     /**
      * Get the source url.
+     *
      * @return string
      */
     public function getSourceUrl(): string
@@ -119,6 +152,7 @@ final class DivisionEntity
 
     /**
      * Get the debate url.
+     *
      * @return string
      */
     public function getDebateUrl(): string
@@ -128,6 +162,7 @@ final class DivisionEntity
 
     /**
      * Get the motion text.
+     *
      * @return string
      */
     public function getMotionText(): string
@@ -137,6 +172,7 @@ final class DivisionEntity
 
     /**
      * Get the motion title.
+     *
      * @return string
      */
     public function getMotionTitle(): string
@@ -146,6 +182,7 @@ final class DivisionEntity
 
     /**
      * Get the original (imported) motion text.
+     *
      * @return string
      */
     public function getOriginalMotionText(): string
@@ -155,6 +192,7 @@ final class DivisionEntity
 
     /**
      * Get the original (imported) motion title.
+     *
      * @return string
      */
     public function getOriginalMotionTitle(): string
@@ -164,6 +202,7 @@ final class DivisionEntity
 
     /**
      * Which house was this division in?
+     *
      * @return string
      */
     public function getHouse(): string
@@ -173,6 +212,7 @@ final class DivisionEntity
 
     /**
      * How many rebellions (in total) were then? May be null if not yet compiled.
+     *
      * @return int|null
      */
     public function getRebellions(): ?int
@@ -182,6 +222,7 @@ final class DivisionEntity
 
     /**
      * What was the total turnout/votes cast? May be null if not yet compiled.
+     *
      * @return int|null
      */
     public function getTurnout(): ?int
@@ -191,6 +232,7 @@ final class DivisionEntity
 
     /**
      * Get the total possible turnout (registered MPs etc) on that date. May be null if not yet compiled.
+     *
      * @return int|null
      */
     public function getPossibleTurnout(): ?int
@@ -200,6 +242,7 @@ final class DivisionEntity
 
     /**
      * Get the majority of the ayes. May be negative if the noes won. May be null if not yet compiled.
+     *
      * @return int|null
      */
     public function getAyeMajority(): ?int

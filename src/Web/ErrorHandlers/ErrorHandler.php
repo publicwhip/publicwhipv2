@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace PublicWhip\Web\ErrorHandlers;
 
@@ -79,6 +79,42 @@ final class ErrorHandler extends AbstractError
         return $response->withStatus(500)
             ->withHeader('Content-type', $contentType)
             ->withBody($body);
+    }
+
+    /**
+     * Render JSON error
+     *
+     * @param Throwable $throwable The thrown item.
+     *
+     * @return string
+     */
+    private function renderJsonErrorMessage(Throwable $throwable): string
+    {
+        $error = [
+            'message' => 'PublicWhip Application Error'
+        ];
+
+        if ($this->displayErrorDetails) {
+            $error['exception'] = [];
+
+            do {
+                $error['exception'][] = [
+                    'type' => get_class($throwable),
+                    'code' => $throwable->getCode(),
+                    'message' => $throwable->getMessage(),
+                    'file' => $throwable->getFile(),
+                    'line' => $throwable->getLine(),
+                    'trace' => explode("\n", $throwable->getTraceAsString())
+                ];
+                $throwable = $throwable->getPrevious();
+            } while ($throwable);
+        }
+
+        $encoded = json_encode($error, JSON_PRETTY_PRINT);
+        if (!is_string($encoded)) {
+            $encoded = '[]';
+        }
+        return $encoded;
     }
 
     /**
@@ -162,41 +198,5 @@ final class ErrorHandler extends AbstractError
         }
 
         return $html;
-    }
-
-    /**
-     * Render JSON error
-     *
-     * @param Throwable $throwable The thrown item.
-     *
-     * @return string
-     */
-    private function renderJsonErrorMessage(Throwable $throwable): string
-    {
-        $error = [
-            'message' => 'PublicWhip Application Error'
-        ];
-
-        if ($this->displayErrorDetails) {
-            $error['exception'] = [];
-
-            do {
-                $error['exception'][] = [
-                    'type' => get_class($throwable),
-                    'code' => $throwable->getCode(),
-                    'message' => $throwable->getMessage(),
-                    'file' => $throwable->getFile(),
-                    'line' => $throwable->getLine(),
-                    'trace' => explode("\n", $throwable->getTraceAsString())
-                ];
-                $throwable = $throwable->getPrevious();
-            } while ($throwable);
-        }
-
-        $encoded = json_encode($error, JSON_PRETTY_PRINT);
-        if (!is_string($encoded)) {
-            $encoded = '[]';
-        }
-        return $encoded;
     }
 }

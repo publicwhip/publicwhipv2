@@ -3,13 +3,14 @@
     <option name="LINE_SEPARATOR" value="&#10;" />
     <PHPCodeStyleSettings>
       <option name="PHPDOC_BLANK_LINE_BEFORE_TAGS" value="true" />
-      <option name="PHPDOC_BLANK_LINES_AROUND_PARAMETERS" value="true" />
       <option name="PHPDOC_WRAP_LONG_LINES" value="true" />
+      <option name="THROWS_WEIGHT" value="28" />
       <option name="LOWER_CASE_BOOLEAN_CONST" value="true" />
       <option name="LOWER_CASE_NULL_CONST" value="true" />
       <option name="ELSE_IF_STYLE" value="COMBINE" />
       <option name="VARIABLE_NAMING_STYLE" value="CAMEL_CASE" />
       <option name="FORCE_SHORT_DECLARATION_ARRAY_STYLE" value="true" />
+      <option name="SPACE_AROUND_ASSIGNMENT_IN_DECLARE" value="true" />
     </PHPCodeStyleSettings>
     <codeStyleSettings language="PHP">
       <option name="BLANK_LINES_AFTER_PACKAGE" value="1" />

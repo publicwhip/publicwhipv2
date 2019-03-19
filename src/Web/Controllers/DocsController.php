@@ -1,15 +1,15 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace PublicWhip\Web\Controllers;
 
-use function in_array;
 use Parsedown;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use PublicWhip\Providers\TemplateProviderInterface;
 use Slim\Exception\NotFoundException;
+use function in_array;
 
 /**
  * Class DocsController

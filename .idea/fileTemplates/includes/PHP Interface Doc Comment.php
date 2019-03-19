@@ -1,3 +1,3 @@
 /**
- * Interface ${NAME}.
+ * ${NAME}.
  */

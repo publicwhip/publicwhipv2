@@ -7,7 +7,10 @@
     "Swift_SmtpTransport",
     "Swift_Mailer",
     "Swift_Message",
-    "Swift_SendmailTransport"
+    "Swift_SendmailTransport",
+    "Swift_Plugins_LoggerPlugin",
+    "Swift_Transport",
+    "Swift_Plugins_Logger"
   ],
   "php-core-extensions" : [
     "Core",
