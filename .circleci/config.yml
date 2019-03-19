@@ -26,8 +26,9 @@ jobs:
 
       # check composer is in sync
       - run:
-        name: Checking composer.lock
-        command: composer validate --no-check-all --strict
+          name: Checking composer.lock
+          command: composer validate --no-check-all --strict
+          
       # Download and cache dependencies
       - restore_cache:
           keys:
