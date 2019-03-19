@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace PublicWhip\Services;
 
@@ -12,41 +12,47 @@ use PublicWhip\Providers\DatabaseProviderInterface;
 use PublicWhip\Providers\WikiParserProviderInterface;
 
 /**
- * Class DivisionService.
- *
  * Reads/writes divisions.
- *
  */
 final class DivisionService implements DivisionServiceInterface
 {
-
     /**
-     * @var DatabaseProviderInterface $databaseProvider The database layer.
+     *  The database layer.
+     *
+     * @var DatabaseProviderInterface $databaseProvider
      */
     private $databaseProvider;
 
     /**
-     * @var WikiParserProviderInterface $wikiParser The wiki code parser.
+     * The wiki code parser.
+     *
+     * @var WikiParserProviderInterface $wikiParser
      */
     private $wikiParser;
 
     /**
-     * @var LoggerInterface $logger The logger.
+     *  The logger.
+     *
+     * @var LoggerInterface $logger
      */
     private $logger;
 
     /**
-     * @var EntityFactoryInterface The entity factory.
+     *  The entity factory.
+     *
+     * @var EntityFactoryInterface
      */
     private $entityFactory;
 
     /**
-     * @var DateTimeFactoryInterface DateTime factory.
+     *  DateTime factory.
+     *
+     * @var DateTimeFactoryInterface
      */
     private $dateTimeFactory;
 
     /**
-     * DivisionService constructor.
+     * Setup the division service.
      *
      * @param DatabaseProviderInterface $databaseProvider Database connection layer.
      * @param EntityFactoryInterface $entityFactory Entity factory.
@@ -60,8 +66,7 @@ final class DivisionService implements DivisionServiceInterface
         DateTimeFactoryInterface $dateTimeFactory,
         WikiParserProviderInterface $wikiParser,
         LoggerInterface $logger
-    )
-    {
+    ) {
         $this->databaseProvider = $databaseProvider;
         $this->entityFactory = $entityFactory;
         $this->dateTimeFactory = $dateTimeFactory;
@@ -72,7 +77,7 @@ final class DivisionService implements DivisionServiceInterface
     /**
      * Get the latest division date (usually used to ensure data is up to date).
      *
-     * @return string
+     * @return string In YYYY-MM-DD format.
      */
     public function getNewestDivisionDate(): string
     {
@@ -83,8 +88,7 @@ final class DivisionService implements DivisionServiceInterface
      * Find a division by its numerical id.
      *
      * @param int $divisionId Numerical id of the division.
-     *
-     * @return DivisionEntity|null
+     * @return DivisionEntity|null Null if not found.
      */
     public function findByDivisionId(int $divisionId): ?DivisionEntity
     {
@@ -96,6 +100,7 @@ final class DivisionService implements DivisionServiceInterface
         $basicDivision = $this->databaseProvider->table('pw_division')
             ->where('division_id', '=', $divisionId)
             ->first();
+
         if (null === $basicDivision) {
             $this->logger->debug(
                 __METHOD__ . ': Did not find by id {id}',
@@ -103,8 +108,10 @@ final class DivisionService implements DivisionServiceInterface
                     'id' => $divisionId
                 ]
             );
+
             return null;
         }
+
         return $this->buildDivisionEntityFromDivisionTable($basicDivision);
     }
 
@@ -115,11 +122,8 @@ final class DivisionService implements DivisionServiceInterface
      * has done in the database.
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     *
      * @param object $basicDivision A division object as returned from the database.
-     *
-     * @return DivisionEntity
-     *
+     * @return DivisionEntity The generated entity.
      * @throws BadDatabaseReturnException
      */
     private function buildDivisionEntityFromDivisionTable(object $basicDivision): DivisionEntity
@@ -158,6 +162,7 @@ final class DivisionService implements DivisionServiceInterface
         $voteInformation = $this->databaseProvider->table('pw_cache_divinfo')
             ->where('division_id', '=', $basicDivision->division_id)
             ->first();
+
         if ($voteInformation) {
             if (!property_exists($voteInformation, 'rebellions')
                 || !property_exists($voteInformation, 'turnout')
@@ -166,6 +171,7 @@ final class DivisionService implements DivisionServiceInterface
             ) {
                 throw new BadDatabaseReturnException('Not a divinfo');
             }
+
             $builtData['rebellions'] = (int)$voteInformation->rebellions;
             $builtData['turnout'] = (int)$voteInformation->turnout;
             $builtData['possibleTurnout'] = (int)$voteInformation->possible_turnout;
@@ -187,12 +193,15 @@ final class DivisionService implements DivisionServiceInterface
             ->orderBy('wiki_id', 'DESC')
             ->first();
         $wikiTextBody = '';
+
         if ($descriptionData) {
             if (!property_exists($descriptionData, 'text_body')) {
                 throw new BadDatabaseReturnException('Not a wiki_motion');
             }
+
             $wikiTextBody = $descriptionData->text_body;
         }
+
         /**
          * Now to extract the additional fields.
          */
@@ -204,6 +213,7 @@ final class DivisionService implements DivisionServiceInterface
             $wikiTextBody,
             (string)$basicDivision->motion
         );
+
         return $this->entityFactory->division($builtData);
     }
 
@@ -213,7 +223,6 @@ final class DivisionService implements DivisionServiceInterface
      * @param string $house Name of the house - probably 'commons','lords' or 'scotland'
      * @param string $date Date in YYYY-MM-DD of the division.
      * @param int $divisionNumber Number of the division.
-     *
      * @return DivisionEntity|null Entity if found.
      */
     public function findByHouseDateAndNumber(string $house, string $date, int $divisionNumber): ?DivisionEntity
@@ -228,6 +237,7 @@ final class DivisionService implements DivisionServiceInterface
             ->where('division_number', '=', $divisionNumber)
             ->where('house', '=', $house)
             ->first();
+
         if (null === $basicDivision) {
             $this->logger->debug(
                 __METHOD__ . ': Did not find in {house} date {date} {divisionNumber}',
@@ -237,8 +247,10 @@ final class DivisionService implements DivisionServiceInterface
                     'divisionNumber' => $divisionNumber
                 ]
             );
+
             return null;
         }
+
         return $this->buildDivisionEntityFromDivisionTable($basicDivision);
     }
 }

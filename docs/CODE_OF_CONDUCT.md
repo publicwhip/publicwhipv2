@@ -4,7 +4,8 @@ The PublicWhip code of conduct is derived from the Ruby code of conduct.
 
 This document provides community guidelines for a safe, respectful, productive, and collaborative place for any
 person who is willing to contribute to the PublicWhip community. It applies to all “collaborative space”, which is 
-defined as community communications channels (such as mailing lists, IRC, Slack, forums, submitted patches, commit comments, etc.).
+defined as community communications channels (such as mailing lists, IRC, Slack, forums, submitted patches,
+commit comments, etc.).
 
 Any violations of the code of conduct may be reported by contacting one or more of the project maintainers either
 directly or via email to team@publicwhip.org.uk .

@@ -1,16 +1,23 @@
-<?php /** @noinspection PhpUndefinedConstantInspection */
-/** @noinspection PhpUndefinedFunctionInspection */
-/** @noinspection PhpComposerExtensionStubsInspection */
-/** @noinspection MessDetectorValidationInspection */
-declare(strict_types=1);
+<?php
+declare(strict_types = 1);
+
+namespace PublicWhip\v1migrationUtils;
+
+use PDO;
+use Psr\Log\NullLogger;
+use PublicWhip\Providers\WikiParserProvider;
+use ReflectionClass;
+use RuntimeException;
+use Throwable;
+use function dirname;
+use function in_array;
 
 /**
  * Extracts divisions which increase the code coverage in the wiki parser.
  * phpcs:disable PSR1.Files.SideEffects
+ * phpcs:disable Squiz.Functions.GlobalFunction.Found
+ * Side effects disabled as we can eat a lot of memory during compilation.
  */
-
-use Psr\Log\NullLogger;
-use PublicWhip\Providers\WikiParserProvider;
 
 ini_set('memory_limit', '512M');
 /**
@@ -50,10 +57,10 @@ $extractedDivisions = [];
 $alwaysIncludeDivisionIds = [12682, 12376, 12354, 12576, 10818];
 
 // override pw1's error handler.
-set_error_handler(function (int $errno, string $errstr, ?string $errfile, ?int $errline): void {
+set_error_handler(static function (int $errno, string $errstr, ?string $errfile, ?int $errline): void {
     print 'Died with error level ' . $errno . ': ' . $errstr . ' in ' .
         ($errfile ?? '[unknown]') . ' at ' . ($errline ?? 0);
-    die();
+    die;
 });
 xdebug_set_filter(XDEBUG_FILTER_CODE_COVERAGE, XDEBUG_PATH_WHITELIST, [$wikiParserFilename]);
 
@@ -80,6 +87,7 @@ $getWikiStatement = $extractPdo->prepare(
 );
 $extractStatement->execute();
 $migrationRow = $extractStatement->fetch(PDO::FETCH_ASSOC);
+
 while ($migrationRow) {
     print PHP_EOL . 'Processing division ' . $migrationRow['division_id'];
     $getWikiStatement->execute([
@@ -101,6 +109,7 @@ while ($migrationRow) {
     $wikiLinesCovered = array_keys($codeCoverage[$wikiParserFilename]);
     $newLines = array_diff($wikiLinesCovered, $wikiLinesAlreadyCovered);
     // have we got a division we want to include?
+
     if (count($newLines) > 0 || in_array((int)$migrationRow['division_id'], $alwaysIncludeDivisionIds, true)) {
         $wikiLinesAlreadyCovered = array_unique(array_merge($wikiLinesAlreadyCovered, $wikiLinesCovered));
         $extractedDivisions[$migrationRow['division_id']] = [
@@ -109,8 +118,10 @@ while ($migrationRow) {
             'v1' => getResultsFromV1($migrationRow)
         ];
     }
+
     $migrationRow = $extractStatement->fetch(PDO::FETCH_ASSOC);
 }
+
 file_put_contents(
     __DIR__ .
     DIRECTORY_SEPARATOR . '..' .
@@ -126,7 +137,6 @@ file_put_contents(
  * Pass it through version 1 to extract how it would handle it.
  *
  * @param array<string,string> $migrationRow Data from the database.
- *
  * @return array<string,string> Extracted Data.
  */
 function getResultsFromV1(array $migrationRow): array
@@ -137,9 +147,11 @@ function getResultsFromV1(array $migrationRow): array
     $_GET['house'] = $migrationRow['house'];
     // let v1 handle it as it does in divisions.php
     $divattr = get_division_attr_decode();
+
     if ('none' === $divattr) {
         throw new RuntimeException('Failed when fetching division ' . $migrationRow['division_id']);
     }
+
     $motionData = get_wiki_current_value(
         'motion',
         [$divattr['division_date'], $divattr['division_number'], $divattr['house']]
@@ -147,17 +159,21 @@ function getResultsFromV1(array $migrationRow): array
     $name = extract_title_from_wiki_text($motionData['text_body']);
     $debateGid = $divattr['debate_gid'];
 
-
     $ldalink = null;
 
     if (('lords' === $divattr['house']) && ($divattr['division_date'] >= '2009-01-21')) {
         $ldasess = '2008_09';
         $ldadate = str_replace('-', '', $divattr['division_date']);
         $ldanum = '/number/' . $divattr['division_number'];
-        $ldalink = "http://services.parliament.uk/LordsDivisionsAnalysis/session/$ldasess/division/$ldadate$ldanum";
+        $ldalink = 'http://services.parliament.uk/LordsDivisionsAnalysis/session/' .
+            $ldasess .
+            '/division/' .
+            $ldadate .
+            $ldanum;
     }
 
     $theyWorkForYouLink = null;
+
     if ('' !== $debateGid) {
         if ('lords' === $divattr['house']) {
             $debateGid = 'lords/?id=' . str_replace('uk.org.publicwhip/lords/', '', $debateGid);
@@ -166,11 +182,13 @@ function getResultsFromV1(array $migrationRow): array
         } else {
             $debateGid = 'debates/?id=' . str_replace('uk.org.publicwhip/debate/', '', $debateGid);
         }
+
         $theyWorkForYouLink = 'http://www.theyworkforyou.com/' . $debateGid;
     }
 
     // hansard
     $historicalHansard = null;
+
     if ($divattr['division_date'] <= '2005-03-17') {
         $millbankurl = $divattr['house']
             . '/' .
@@ -195,14 +213,18 @@ function getResultsFromV1(array $migrationRow): array
         'description' => extract_motion_text_from_wiki_text($motionData['text_body']),
         'actionText' => extract_action_text_from_wiki_text($motionData['text_body'])
     ];
+
     if ($ldalink) {
         $output['ldaLink'] = $ldalink;
     }
+
     if ($theyWorkForYouLink) {
         $output['theyWorkForYouLink'] = $theyWorkForYouLink;
     }
+
     if ($historicalHansard) {
         $output['historicalHansard'] = $historicalHansard;
     }
+
     return $output;
 }

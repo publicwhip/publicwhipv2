@@ -1,24 +1,25 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace PublicWhip\Providers;
 
-use DebugBar\DebugBarException;
-
 /**
- * Class MailerProvider
- *
- * @TODO Uses 'new' can we change to use DI?
+ * MailerProviderInterface.
  */
 interface MailerProviderInterface
 {
-
     /**
-     * MailerProvider constructor.
+     * Setup the mailer.
      *
-     * @param string[] $options Configuration options.
+     * @param MailerTransportProviderInterface $mailerTransport Built transport.
+     * @param string $fromName Default from name.
+     * @param string $fromAddress Default from address.
      */
-    public function __construct(array $options);
+    public function __construct(
+        MailerTransportProviderInterface $mailerTransport,
+        string $fromName,
+        string $fromAddress
+    );
 
     /**
      * Send a multipart email.
@@ -26,8 +27,7 @@ interface MailerProviderInterface
      * @param string $subject The subject of the email.
      * @param string $toAddress Who it is going to.
      * @param string $toName The name of the person it is going to.
-     * @param string[] $body What the body of the email is.
-     *
+     * @param array<string> $body What the body of the email is.
      * @return int The number of successful recipients. Can be 0 which indicates failure
      */
     public function sendMultipartMail(string $subject, string $toAddress, string $toName, array $body): int;
@@ -39,7 +39,6 @@ interface MailerProviderInterface
      * @param string $toAddress Who it is going to.
      * @param string $toName The name of the person it is going to.
      * @param string $body What the body of the email is.
-     *
      * @return int The number of successful recipients. Can be 0 which indicates failure
      */
     public function sendMail(string $subject, string $toAddress, string $toName, string $body): int;
@@ -48,8 +47,6 @@ interface MailerProviderInterface
      * Add a debugger.
      *
      * @param DebuggerProviderInterface $debugger The debugger to add.
-     *
-     * @throws DebugBarException
      */
     public function addToDebugger(DebuggerProviderInterface $debugger): void;
 }

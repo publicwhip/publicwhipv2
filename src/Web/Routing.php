@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace PublicWhip\Web;
 
@@ -48,9 +48,54 @@ class Routing
     }
 
     /**
+     * Setup all the routes starting /divisions .
+     *
+     * @param App $app Slim App
+     */
+    private function setupDivisions(App $app): void
+    {
+        $app->group(
+            '/divisions',
+            function (App $app): void {
+                $app->get('/', [DivisionController::class, 'indexAction']);
+                $app->get(
+                    '/{divisionId:[0-9]+}/',
+                    [DivisionController::class, 'showDivisionById']
+                )->setName('divisionById');
+                $app->get(
+                    '/' .
+                    '{house:commons|lords|scotland}/' .
+                    '{date:18|19|20[0-9][0-9]\-[0-1][0-9]\-[0-3][0-9]}/' .
+                    '{divisionNumber:[0-9]+}/',
+                    [DivisionController::class, 'showDivisionByDateAndNumberAction']
+                )->setName('divisionByHouseDateNumber');
+            }
+        );
+    }
+
+    /**
+     * Sets up all the routes starting /ping - mainly our uptime monitoring ones.
+     *
+     * @param App $app Slim app.
+     */
+    private function setupPingRoutes(App $app): void
+    {
+        $app->group(
+            '/ping',
+            function (App $app): void {
+                $app->get('/', [PingController::class, 'indexAction']);
+                $app->get('/lastDivisionParsed/', [PingController::class, 'lastDivisionParsedAction']);
+                $app->get('/testmail/', [PingController::class, 'testMailAction']);
+
+            }
+        );
+    }
+
+    /**
      * Handle optional trailing slashes on GET requests.
      *
-     * @param App $app Slim App.     */
+     * @param App $app Slim App.
+     */
     public function setupTrailingSlash(App $app): void
     {
         $container = $app->getContainer();
@@ -74,48 +119,6 @@ class Routing
                     }
                 }
                 return $next($request->withUri($new), $response);
-            }
-        );
-    }
-
-    /**
-     * Sets up all the routes starting /ping - mainly our uptime monitoring ones.
-     *
-     * @param App $app Slim app.
-     *     */
-    private function setupPingRoutes(App $app): void
-    {
-        $app->group(
-            '/ping',
-            function (App $app): void {
-                $app->get('/', [PingController::class, 'indexAction']);
-                $app->get('/lastDivisionParsed/', [PingController::class, 'lastDivisionParsedAction']);
-            }
-        );
-    }
-
-    /**
-     * Setup all the routes starting /divisions .
-     *
-     * @param App $app Slim App
-     *     */
-    private function setupDivisions(App $app): void
-    {
-        $app->group(
-            '/divisions',
-            function (App $app): void {
-                $app->get('/', [DivisionController::class, 'indexAction']);
-                $app->get(
-                    '/{divisionId:[0-9]+}/',
-                    [DivisionController::class, 'showDivisionById']
-                )->setName('divisionById');
-                $app->get(
-                    '/' .
-                    '{house:commons|lords|scotland}/' .
-                    '{date:18|19|20[0-9][0-9]\-[0-1][0-9]\-[0-3][0-9]}/' .
-                    '{divisionNumber:[0-9]+}/',
-                    [DivisionController::class, 'showDivisionByDateAndNumberAction']
-                )->setName('divisionByHouseDateNumber');
             }
         );
     }

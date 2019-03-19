@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace PublicWhip\Providers;
 
@@ -12,21 +12,18 @@ use Psr\Http\Message\ServerRequestInterface;
 use Slim\Interfaces\InvocationStrategyInterface;
 
 /**
- * Class ControllerInvokerProvider.
- *
  * Providers a controller invoker compatible with PHP-DI.
  */
 class ControllerInvokerProvider implements InvocationStrategyInterface
 {
-
     /**
-     * @var InvokerInterface $invoker The PHP-DI invoker.
+     * The PHP-DI invoker.
+     *
+     * @var InvokerInterface $invoker
      */
     private $invoker;
 
     /**
-     * Constructor.
-     *
      * @param InvokerInterface $invoker The invoker.
      */
     public function __construct(InvokerInterface $invoker)
@@ -40,8 +37,7 @@ class ControllerInvokerProvider implements InvocationStrategyInterface
      * @param callable $callable The callable to invoke using the strategy.
      * @param ServerRequestInterface $request The request object.
      * @param ResponseInterface $response The response object.
-     * @param string[] $routeArguments The route's placeholder arguments
-     *
+     * @param array<string,string> $routeArguments The route's placeholder arguments
      * @return ResponseInterface|string The response from the callable.
      * @throws InvocationException
      * @throws NotCallableException
@@ -52,8 +48,7 @@ class ControllerInvokerProvider implements InvocationStrategyInterface
         ServerRequestInterface $request,
         ResponseInterface $response,
         array $routeArguments
-    )
-    {
+    ) {
         // Inject the request and response by parameter name
         $parameters = [
             'request' => $request,

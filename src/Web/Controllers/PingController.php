@@ -1,9 +1,10 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace PublicWhip\Web\Controllers;
 
 use Psr\Http\Message\ResponseInterface;
+use PublicWhip\Providers\MailerProviderInterface;
 use PublicWhip\Services\DivisionServiceInterface;
 
 /**
@@ -44,6 +45,26 @@ class PingController
     {
         $body = $response->getBody();
         $body->write($divisionService->getNewestDivisionDate());
+        return $response;
+    }
+
+    /**
+     * Send a test mail.
+     *
+     * @param MailerProviderInterface $mailer
+     * @param ResponseInterface $response
+     * @return ResponseInterface
+     */
+    public function testMailAction(MailerProviderInterface $mailer, ResponseInterface $response): ResponseInterface
+    {
+        $count = $mailer->sendMail(
+            'Test subject',
+            'test@example.com',
+            'Testing name',
+            'Generated at '.time()
+        );
+        $body = $response->getBody();
+        $body->write('Sent ' . $count . ' test mails');
         return $response;
     }
 }

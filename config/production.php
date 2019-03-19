@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 return [
     'settings.db' => [
@@ -20,7 +20,9 @@ return [
         'host' => 'mailhog',
         'port' => 1025,
         'username' => '',
-        'password' => ''
+        'password' => '',
+        'fromname' => 'PublicWhip Development',
+        'fromaddress' => 'null@publicwhip.org.uk'
     ],
     'settings.debug' => false,
     'settings.templates.cache' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'cache'

@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace PublicWhip\Providers;
 
@@ -11,72 +11,81 @@ use DebugBar\StandardDebugBar;
 use Throwable;
 
 /**
- * Class DebuggerProvider
+ * DebuggerProvider.
  *
+ * Provides a debug bar.
  */
 final class DebuggerProvider implements DebuggerProviderInterface
 {
-
     /**
+     * The debug bar from the debugger.
+     *
      * @var StandardDebugBar|null $debugbar
      */
     private $debugbar;
 
     /**
+     * The renderer from the debugger.
+     *
      * @var JavascriptRenderer|null $renderer
      */
     private $renderer;
 
     /**
-     * DebuggerProvider constructor.
-     *
      * @param bool $active Are we active?
      */
     public function __construct(bool $active)
     {
-        if ($active) {
-            $this->debugbar = new StandardDebugBar();
-            $this->renderer = $this->debugbar->getJavascriptRenderer();
-            $this->setBaseUrl('/debugbar');
+        if (!$active) {
+            return;
         }
+
+        $this->debugbar = new StandardDebugBar();
+        $this->renderer = $this->debugbar->getJavascriptRenderer();
+        $this->setBaseUrl('/debugbar');
     }
 
     /**
      * Set the base url for output rendering.
      *
      * @param string $url Base Url.
-     *     */
+     */
     public function setBaseUrl(string $url): void
     {
-        if (null !== $this->renderer) {
-            $this->renderer->setBaseUrl($url);
+        if (null === $this->renderer) {
+            return;
         }
+
+        $this->renderer->setBaseUrl($url);
     }
 
     /**
      * Add a new data collector to the debugger.
      *
      * @param DataCollectorInterface $collector The data collector we are adding.
-     *     *
      * @throws DebugBarException
      */
     public function addDataCollector(DataCollectorInterface $collector): void
     {
-        if (null !== $this->debugbar) {
-            $this->debugbar->addCollector($collector);
+        if (null === $this->debugbar) {
+            return;
         }
+
+        $this->debugbar->addCollector($collector);
     }
 
     /**
      * Add a new messages collector.
      *
      * @param MessagesAggregateInterface $collector The collector we are adding.
-     *     */
+     */
     public function addMessagesAggregateCollector(MessagesAggregateInterface $collector): void
     {
-        if (null !== $this->debugbar) {
-            $this->debugbar['message']->aggregate($collector);
+        if (null === $this->debugbar) {
+            return;
         }
+
+        $this->debugbar['messages']->aggregate($collector);
     }
 
     /**
@@ -84,25 +93,29 @@ final class DebuggerProvider implements DebuggerProviderInterface
      *
      * @param string $msg The message we are logging.
      * @param string|null $level The severity level we are logging.
-     *     */
+     */
     public function addMessage(string $msg, ?string $level = null): void
     {
-        if (null !== $this->debugbar) {
-            $level = $level ?: 'info';
-            $this->debugbar['messages']->log($level, $msg);
+        if (null === $this->debugbar) {
+            return;
         }
+
+        $level = $level ?: 'info';
+        $this->debugbar['messages']->log($level, $msg);
     }
 
     /**
      * Add an exception.
      *
      * @param Throwable $throwable The throwable we are handling.
-     *     */
+     */
     public function addThrowable(Throwable $throwable): void
     {
-        if (null !== $this->debugbar) {
-            $this->debugbar['exceptions']->addException($throwable);
+        if (null === $this->debugbar) {
+            return;
         }
+
+        $this->debugbar['exceptions']->addException($throwable);
     }
 
     /**
@@ -112,10 +125,11 @@ final class DebuggerProvider implements DebuggerProviderInterface
      */
     public function getBaseUrl(): string
     {
-        if (null !== $this->renderer) {
-            return $this->renderer->getBaseUrl();
+        if (null === $this->renderer) {
+            return '';
         }
-        return '';
+
+        return $this->renderer->getBaseUrl();
     }
 
     /**
@@ -125,10 +139,11 @@ final class DebuggerProvider implements DebuggerProviderInterface
      */
     public function getBasePath(): string
     {
-        if (null !== $this->renderer) {
-            return $this->renderer->getBasePath();
+        if (null === $this->renderer) {
+            return '';
         }
-        return '';
+
+        return $this->renderer->getBasePath();
     }
 
     /**
@@ -138,10 +153,11 @@ final class DebuggerProvider implements DebuggerProviderInterface
      */
     public function renderHead(): string
     {
-        if (null !== $this->renderer) {
-            return $this->renderer->renderHead();
+        if (null === $this->renderer) {
+            return '';
         }
-        return '';
+
+        return $this->renderer->renderHead();
     }
 
     /**
@@ -151,9 +167,10 @@ final class DebuggerProvider implements DebuggerProviderInterface
      */
     public function renderBar(): string
     {
-        if (null !== $this->renderer) {
-            return $this->renderer->render();
+        if (null === $this->renderer) {
+            return '';
         }
-        return '';
+
+        return $this->renderer->render();
     }
 }

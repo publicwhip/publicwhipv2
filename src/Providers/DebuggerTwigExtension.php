@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace PublicWhip\Providers;
 
@@ -9,26 +9,25 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 /**
- * Class DebuggerTwigExtension.
- *
  * Adds the debug bar to twig.
  */
 final class DebuggerTwigExtension extends AbstractExtension
 {
-
     /**
-     * @var UriInterface $uri Our current url.
+     *  Our current url.
+     *
+     * @var UriInterface $uri
      */
     private $uri;
 
     /**
-     * @var DebuggerProviderInterface $debugger The debugger.
+     * The debugger.
+     *
+     * @var DebuggerProviderInterface $debugger
      */
     private $debugger;
 
     /**
-     * DebuggerTwigExtension constructor.
-     *
      * @param RequestInterface $request The request.
      * @param DebuggerProviderInterface $debugger The debugger.
      */
@@ -41,6 +40,7 @@ final class DebuggerTwigExtension extends AbstractExtension
 
     /**
      * Get the base url.
+     *
      * @return string
      */
     public function baseUrlFunction(): string
@@ -48,12 +48,14 @@ final class DebuggerTwigExtension extends AbstractExtension
         if (method_exists($this->uri, 'getBaseUrl')) {
             return $this->uri->getBaseUrl();
         }
+
         return '';
     }
 
     /**
      * Get the twig functions
-     * @return TwigFunction[]
+     *
+     * @return array<TwigFunction>
      */
     public function getFunctions(): array
     {
@@ -65,6 +67,7 @@ final class DebuggerTwigExtension extends AbstractExtension
 
     /**
      * Get the debug header.
+     *
      * @return string
      */
     public function debugHeadFunction(): string
@@ -74,6 +77,7 @@ final class DebuggerTwigExtension extends AbstractExtension
 
     /**
      * Get the debug bar main body.
+     *
      * @return string
      */
     public function debugBarFunction(): string
