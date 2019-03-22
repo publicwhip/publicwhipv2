@@ -21,6 +21,7 @@ interface DatabaseProviderInterface
 {
     /**
      *  Configuration settings.
+     *
      * @param array<string,string> $config
      */
     public function __construct(array $config);

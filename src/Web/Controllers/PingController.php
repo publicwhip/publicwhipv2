@@ -5,7 +5,7 @@ namespace PublicWhip\Web\Controllers;
 
 use Psr\Http\Message\ResponseInterface;
 use PublicWhip\Providers\MailerProviderInterface;
-use PublicWhip\Services\DivisionServiceInterface;
+use PublicWhip\Services\HansardServiceInterface;
 
 /**
  * Class PingController.
@@ -33,13 +33,13 @@ class PingController
     /**
      * Returns the date of the last division processed.
      *
-     * @param DivisionServiceInterface $divisionService The devision service.
+     * @param HansardServiceInterface $divisionService The devision service.
      * @param ResponseInterface $response The response to populate.
      *
      * @return ResponseInterface
      */
     public function lastDivisionParsedAction(
-        DivisionServiceInterface $divisionService,
+        HansardServiceInterface $divisionService,
         ResponseInterface $response
     ): ResponseInterface
     {

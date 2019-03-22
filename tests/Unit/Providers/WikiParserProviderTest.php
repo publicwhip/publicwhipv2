@@ -21,7 +21,9 @@ final class WikiParserProviderTest extends TestCase
     /**
      * Cached division test data.
      *
-     * @var array<int, array<string, array<string, string>>>|null $cachedDivisionTestData
+     * "divisionId" = [ "something"=>"something","x"=>["a"=>"b"]]
+     *
+     * @var array<string, array<array<string,string|array<string, string>>>>|null $cachedDivisionTestData
      */
     private $cachedDivisionTestData;
 
@@ -63,7 +65,7 @@ final class WikiParserProviderTest extends TestCase
     /**
      * Get the mock divisions.
      *
-     * @return array<int, array<string, array<string, string>>>
+     * @return array<string, array<array<string,string|array<string, string>>>>
      */
     private function getMockDivisions(): array
     {
@@ -91,26 +93,29 @@ final class WikiParserProviderTest extends TestCase
     /**
      * Check we render all division titles the same as v1.
      *
-     * @covers ::parseDivisionTitle
+     * @covers ::parseDivisionTitleFromWiki
      * @throws ReflectionException
      */
-    public function testParseDivisionTitle(): void
+    public function testParseDivisionTitleFromWiki(): void
     {
         /** @var LoggerInterface $logger */
         $logger = $this->createMock(LoggerInterface::class);
         $sut = new WikiParserProvider($logger);
 
-        foreach ($this->getMockDivisions() as $divisionId => $divisionEntry) {
-            $lastWiki = last($divisionEntry['wiki']);
-            $newTitle = $sut->parseDivisionTitle(
-                $lastWiki['text_body'] ?? '',
-                $divisionEntry['division']['division_name']
-            );
-            self::assertSame(
-                $divisionEntry['v1']['title'],
-                $newTitle,
-                'When testing division ' . $divisionId
-            );
+        foreach ($this->getMockDivisions() as $divisionId => $division) {
+            foreach ($division as $divisionEntry) {
+                $toWiki = $sut->toWiki(
+                    $divisionEntry['divisionName'],
+                    $divisionEntry['motion'],
+                    $divisionEntry['wikiText']
+                );
+                $newTitle = $sut->parseDivisionTitleFromWiki($toWiki);
+                self::assertSame(
+                    $divisionEntry['v1']['title'],
+                    $newTitle,
+                    'When testing division ' . $divisionId
+                );
+            }
         }
     }
 
@@ -119,28 +124,110 @@ final class WikiParserProviderTest extends TestCase
      *
      * @throws ReflectionException
      *
-     * @covers ::parseMotionText
-     * @covers ::parseMotionTextForEdit
+     * @covers ::parseMotionTextFromWiki
      */
-    public function testParseMotionText(): void
+    public function testParseMotionTextFromWiki(): void
     {
         /** @var LoggerInterface $logger */
         $logger = $this->createMock(LoggerInterface::class);
         $sut = new WikiParserProvider($logger);
 
-        foreach ($this->getMockDivisions() as $divisionId => $divisionEntry) {
-            // we are comparing the last entry.
-            $lastWiki = last($divisionEntry['wiki']);
-            $newTitle = $sut->parseMotionText(
-                $lastWiki['text_body'] ?? '',
-                $divisionEntry['division']['motion']
-            );
-            $expected = $divisionEntry['v1']['description'];
-            self::assertSame(
-                $expected,
-                $newTitle,
-                'When testing division ' . $divisionId
-            );
+        /**
+         * @var string $divisionId Division id.
+         * @var array<array<string,string|array<string, string>>> $division Division data
+         */
+        foreach ($this->getMockDivisions() as $divisionId => $division) {
+            foreach ($division as $divisionEntry) {
+                $toWiki = $sut->toWiki(
+                    $divisionEntry['divisionName'],
+                    $divisionEntry['motion'],
+                    $divisionEntry['wikiText']
+                );
+
+                $text = $sut->parseMotionTextFromWiki($toWiki);
+                $expected = $divisionEntry['v1']['motionText'];
+                self::assertSame(
+                    $expected,
+                    $text,
+                    'When testing division ' . $divisionId
+                );
+            }
+        }
+    }
+
+    /**
+     * Check we render all division texts the same as v1.
+     *
+     * @throws ReflectionException
+     *
+     * @covers ::parseMotionTextFromWikiForEdit
+     */
+    public function testParseMotionTextFromWikiForEdit(): void
+    {
+        /** @var LoggerInterface $logger */
+        $logger = $this->createMock(LoggerInterface::class);
+        $sut = new WikiParserProvider($logger);
+
+        /**
+         * @var string $divisionId Division id.
+         * @var array<array<string,string|array<string, string>>> $division Division data
+         */
+        foreach ($this->getMockDivisions() as $divisionId => $division) {
+            foreach ($division as $divisionEntry) {
+                $toWiki = $sut->toWiki(
+                    $divisionEntry['divisionName'],
+                    $divisionEntry['motion'],
+                    $divisionEntry['wikiText']
+                );
+
+                $text = $sut->parseMotionTextFromWikiForEdit($toWiki);
+                $expected = $divisionEntry['v1']['motionTextForEdit'];
+                self::assertSame(
+                    $expected,
+                    $text,
+                    'When testing division ' . $divisionId
+                );
+            }
+        }
+    }
+
+    /**
+     * Check we render all division texts the same as v1.
+     *
+     * @throws ReflectionException
+     *
+     * @covers ::parseActionTextFromWiki
+     */
+    public function testParseActionTextFromWiki(): void
+    {
+        /** @var LoggerInterface $logger */
+        $logger = $this->createMock(LoggerInterface::class);
+        $sut = new WikiParserProvider($logger);
+
+        /**
+         * @var string $divisionId Division id.
+         * @var array<array<string,string|array<string, string>>> $division Division data
+         */
+        foreach ($this->getMockDivisions() as $divisionId => $division) {
+            foreach ($division as $divisionEntry) {
+                $toWiki = $sut->toWiki(
+                    $divisionEntry['divisionName'],
+                    $divisionEntry['motion'],
+                    $divisionEntry['wikiText']
+                );
+
+                /** @var array<string,string> $array */
+                $array = $sut->parseActionTextFromWiki($toWiki);
+                /** @var array<string,string> $expected */
+                $expected = $divisionEntry['v1']['actionText'];
+                unset($expected['title']);
+                $expected = array_change_key_case($expected, CASE_LOWER);
+                self::assertSame(
+                    $expected,
+                    $array,
+                    'When testing division ' . $divisionId
+                );
+            }
         }
     }
 

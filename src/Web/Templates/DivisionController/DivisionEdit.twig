@@ -1,0 +1,32 @@
+{% extends "DivisionController/template.twig" %}
+{% block title %}Editing division {{ division.divisionId }}{% endblock title %}
+
+<p>You are editing division {{ division.divisionId }}.</p>
+
+<form method="post">
+    <div id="editing-division-title">
+    <div class="form-group">
+        <label for="originalTitle">Original title</label>
+        <input type="text" id="originalTitle" aria-describedby="originalTitleHelp" disabled value="{{ division.originalMotionTitle|e }}">
+        <small id="originalTitleHelp">This is the original title of the division as loaded from Hansard</small>
+    </div>
+    <div class="form-group">
+        <label for="newTitle">New title</label>
+        <input type="text" id="newTitle" aria-describedby="newTitleHelp"  value="{{ newTitle|e }}">
+        <small id="newTitleHelp">This is the new title</small>
+    </div>
+    </div>
+    <div id="editing-division-motion">
+        <div class="form-group">
+            <label for="originalMotion">Original motion text</label>
+            <textarea id="originalMotion" aria-describedby="originalMotionHelp">{{ division.originalMotionText }}</textarea>
+            <small id="originalMotionHelp">This is the original text of the motion as loaded from Hansard</small>
+        </div>
+        <div class="form-group">
+            <label for="newMotion">New motion text</label>
+            <textarea type="text" id="newMotion" aria-describedby="newMotionHelp">{{ newMotion|e }}
+            <small id="newMotionHelp">This is the the new motion</small>
+        </div>
+    </div>
+
+</form>

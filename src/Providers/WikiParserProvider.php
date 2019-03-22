@@ -5,13 +5,14 @@ namespace PublicWhip\Providers;
 
 use Psr\Log\LoggerInterface;
 use PublicWhip\Exceptions\Providers\WikiFailedRegExp;
+use PublicWhip\Exceptions\Providers\WikiNotAWikiEntryException;
 
 /**
  * Turn off all warnings as this code is a bit of a mess, even though it's been tidied up since v1.
  *
  * @SuppressWarnings(PHPMD)
  */
-final class WikiParserProvider implements WikiParserProviderInterface
+class WikiParserProvider implements WikiParserProviderInterface
 {
     /**
      * A 'safe' version of html &lt; used for tag stripping.
@@ -29,6 +30,10 @@ final class WikiParserProvider implements WikiParserProviderInterface
     private const SAFE_QUOTE = '{|}';
 
     /**
+     * Default comment text
+     */
+    private const DEFAULT_COMMENT_TEXT = '(put thoughts and notes for other researchers here)';
+    /**
      * Logger Interface.
      *
      * @var LoggerInterface $logger
@@ -44,24 +49,65 @@ final class WikiParserProvider implements WikiParserProviderInterface
     }
 
     /**
-     * Get the division title.
+     * Get a standardised wiki string.
      *
-     * @param string $wiki The wiki text.
-     * @param string $default Default title to return.
+     * @param string $divisionName The name of the division
+     * @param string $motion The text of the motion
+     * @param string|null $wikiText Wiki text if we have any (empty if not)
      * @return string
      */
-    public function parseDivisionTitle(string $wiki, string $default): string
+    public function toWiki(string $divisionName, string $motion, ?string $wikiText = null): string
     {
-        $newTitle = $default;
-
-        if ('' !== $wiki && preg_match('/--- DIVISION TITLE ---\s*(.*)\s*--- MOTION EFFECT/s', $wiki, $matches)) {
-            $newTitle = $matches[1];
-            $this->logger->debug('Extracted wiki title {wikiTitle}', ['wikiTitle' => $newTitle]);
-        } else {
-            $this->logger->debug('No wiki text found, using default title: {title}', ['default' => $default]);
+        $motion = str_replace([' class=""', ' pwmotiontext="yes"'], '', $motion);
+        if (null === $wikiText || '' === $wikiText) {
+            $wikiText = $motion;
         }
+        $this->logger->debug('Converting to wikiText {wikiText}', ['wikiText' => $wikiText]);
+        // Put wrappers on if they are not there
+        if (!preg_match('/--- MOTION EFFECT ---/', $wikiText)) {
+            $wikiText =
+                '--- MOTION EFFECT ---' .
+                "\n\n" .
+                $wikiText .
+                "\n" .
+                '--- COMMENTS AND NOTES ---' .
+                "\n\n" .
+                '(put thoughts and notes for other researchers here)' .
+                "\n";
+        }
+        if (!preg_match('/--- DIVISION TITLE ---/', $wikiText)) {
+            $wikiText =
+                '--- DIVISION TITLE ---' .
+                "\n\n" .
+                $divisionName .
+                "\n\n" .
+                $wikiText;
+        }
+        $wikiText = preg_replace('/&#8212;/', '-', $wikiText);
+        if (null === $wikiText) {
+            throw new WikiFailedRegExp('Could not replace in toWiki');
+        }
+        $this->logger->debug('ConvertED to wikiText {wikiText}', ['wikiText' => $wikiText]);
 
-        $newTitle = trim(strip_tags($newTitle));
+        return $wikiText;
+    }
+
+    /**
+     * Get the division title.
+     *
+     * @param string $wikiText The wiki text.
+     * @return string
+     */
+    public function parseDivisionTitleFromWiki(string $wikiText): string
+    {
+        if (!preg_match('/--- DIVISION TITLE ---\s*(.*)\s*--- MOTION/s', $wikiText, $matches)) {
+            $this->logger->warning(
+                'parseDivisionTitle called without wiki markers: {text}',
+                ['text' => $wikiText]
+            );
+            throw new WikiNotAWikiEntryException('Invalid text passed');
+        }
+        $newTitle = trim(strip_tags($matches[1]));
         $newTitle = str_replace(' - ', ' &#8212; ', $newTitle);
 
         return $newTitle;
@@ -71,14 +117,13 @@ final class WikiParserProvider implements WikiParserProviderInterface
      * Parse the motion text suitable for display.
      *
      * @see https://github.com/publicwhip/publicwhip/blob/a4899135b6957abae85da3fc93c4cc3cf9e4fbc1/website/wiki.inc#L112
-     * @param string $wiki The text to parse.
-     * @param string $default The text to return if it's not a valid wiki text.
+     * @param string $wikiText The text to parse.
      * @return string
      */
-    public function parseMotionText(string $wiki, string $default): string
+    public function parseMotionTextFromWiki(string $wikiText): string
     {
         $this->logger->debug('Going to parse motion text');
-        $motion = $this->parseMotionTextForEdit($wiki, $default);
+        $motion = $this->parseMotionTextFromWikiForEdit($wikiText);
 
         if (!preg_match('/<\/.*?>/', $motion)) {
             $motionLines = explode("\n", $motion);
@@ -193,19 +238,20 @@ final class WikiParserProvider implements WikiParserProviderInterface
      * Get the motion text from the wiki - suitable for editing.
      * PublicWhip v1 function extract_motion_text_from_wiki_text_for_edit
      *
-     * @param string $wiki Wiki text to parse.
-     * @param string $default If the wiki text was not valid, the text to be returned instead.
+     * @param string $wikiText Wiki text to parse.
      * @return string
      */
-    public function parseMotionTextForEdit(string $wiki, string $default): string
+    public function parseMotionTextFromWikiForEdit(string $wikiText): string
     {
-        $text = $default;
-
-        if ('' !== $wiki && preg_match('/--- MOTION EFFECT ---(.*)--- COMMENT/s', $wiki, $matches)) {
-            $text = $matches[1];
-            $this->logger->debug('Will be using extracted text from wiki');
+        if (!preg_match('/--- MOTION EFFECT ---(.*)--- COMMENT/s', $wikiText, $matches)) {
+            $this->logger->warning(
+                'parseMotionTextFromWikiForEdit called without wiki markers: {text}',
+                ['text' => $wikiText]
+            );
+            throw new WikiNotAWikiEntryException('Invalid text passed');
         }
 
+        $text = $matches[1];
         $this->logger->debug('Parsing text {text}', ['text' => htmlspecialchars($text, ENT_QUOTES)]);
         // strip empty items.
         $text = str_replace(['&#8212;', ' class=""', ' pwmotiontext="yes"'], ['-', '', ''], trim($text));
@@ -258,6 +304,53 @@ final class WikiParserProvider implements WikiParserProviderInterface
         }
 
         return $output;
+    }
+
+    /**
+     * Parse any comment text.
+     *
+     * @param string $wikiText The wiki text.
+     * @param bool|null $removeDefaultText True to remove the default comment text.
+     * @return string
+     */
+    public function parseCommentTextFromWiki(string $wikiText, ?bool $removeDefaultText = null): string
+    {
+        if (!preg_match('/--- COMMENTS AND NOTES ---(.*)/s', $wikiText, $matches)) {
+            $this->logger->warning(
+                'parseCommentTextFromWiki called without wiki markers: {text}',
+                ['text' => $wikiText]
+            );
+            throw new WikiNotAWikiEntryException('Invalid text passed');
+        }
+        $text = trim($matches[1]);
+        if ($removeDefaultText && self::DEFAULT_COMMENT_TEXT === $text) {
+            return '';
+        }
+
+        return $text;
+    }
+
+    /**
+     * Extract the action values.
+     *
+     * @param string $wikiText Wiki text.
+     * @return array<string,string>
+     */
+    public function parseActionTextFromWiki(string $wikiText): array
+    {
+        $motion = $this->parseMotionTextFromWikiForEdit($wikiText);
+        $motionLines = explode("\n", $motion);
+        $res = [];
+
+        foreach ($motionLines as $motionLine) {
+            if (!preg_match('/^@\s*MP voted (aye|no)(.*)$/i', $motionLine, $matches)) {
+                continue;
+            }
+
+            $res[strtolower($matches[1])] = $matches[2];
+        }
+
+        return $res;
     }
 
     /**

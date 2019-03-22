@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace PublicWhip\Factories;
 
 use DateTimeImmutable;
+use DateTimeZone;
 use Psr\Log\LoggerInterface;
 use PublicWhip\Exceptions\Factories\BadDateTimeException;
 
@@ -23,30 +24,43 @@ final class DateTimeFactory implements DateTimeFactoryInterface
     private $logger;
 
     /**
+     * The default time zone to use. We should have everything in UTC.
+     *
+     * @var DateTimeZone
+     */
+    private $defaultTimeZone;
+
+    /**
      * @param LoggerInterface $logger Logger.
      */
     public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
+        $this->defaultTimeZone = new DateTimeZone('UTC');
     }
 
     /**
-     * Convert a string in yyyy-mm-dd format to a DateTimeImmutable.
+     * Convert a string to a DateTimeImmutable.
      *
-     * @param string $ymd Date in yyyy-mm-dd to be converted. Time will be set to 00:00:00
+     * @param string $format The date format.
+     * @param string $inputDate Date to be converted.
      * @return DateTimeImmutable
      */
-    public function dateTimeImmutableFromYyyyMmDd(string $ymd): DateTimeImmutable
+    public function createImmutableFromFormat(string $format, string $inputDate): DateTimeImmutable
     {
-        $this->logger->info('Creating dateTimeImmutable from {ymd} in yyyy-mm-dd format', ['ymd' => $ymd]);
-        $date = DateTimeImmutable::createFromFormat('!Y-m-d', $ymd);
+        $this->logger->info(
+            'Creating createImmutableFromFormat from format {format} date {inputDate}',
+            ['format' => $format, 'inputDate' => $inputDate]
+        );
+        $date = DateTimeImmutable::createFromFormat($format, $inputDate, $this->defaultTimeZone);
 
         if (!$date instanceof DateTimeImmutable) {
             $errors = DateTimeImmutable::getLastErrors();
             $encoded = json_encode($errors);
             $message = sprintf(
-                'Failed to create DateTimeImmutable from yyyy-mm-dd using the input %s : errors: %s',
-                $ymd,
+                'Failed to create createImmutableFromFormat from %s using the input %s : errors: %s',
+                $format,
+                $inputDate,
                 $encoded ?: '[failed]'
             );
             $this->logger->warning($message);

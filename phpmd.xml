@@ -19,10 +19,14 @@
     <!-- Import the entire clean code rule set -->
     <rule ref="rulesets/codesize.xml" />
     <!-- Import the entire clean code rule set -->
-    <rule ref="rulesets/naming.xml" />
     <rule ref="rulesets/naming.xml">
         <exclude name="ShortVariable" />
         <exclude name="LongVariable" />
+    </rule>
+    <rule ref="rulesets/naming.xml/ShortVariable">
+        <properties>
+            <property name="exceptions" value="id" />
+        </properties>
     </rule>
 
     <exclude-pattern>.idea/</exclude-pattern>

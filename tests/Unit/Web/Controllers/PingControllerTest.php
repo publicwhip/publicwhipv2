@@ -5,7 +5,7 @@ namespace PublicWhip\Tests\Unit\Web\Controllers;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use PublicWhip\Services\DivisionServiceInterface;
+use PublicWhip\Services\HansardServiceInterface;
 use PublicWhip\Web\Controllers\PingController;
 use ReflectionException;
 use Slim\Http\Response;
@@ -41,8 +41,8 @@ final class PingControllerTest extends TestCase
         $sut = new PingController();
         $mockResponse = new Response(200);
 
-        /** @var DivisionServiceInterface|MockObject $mockDivisionService */
-        $mockDivisionService = $this->createMock(DivisionServiceInterface::class);
+        /** @var HansardServiceInterface|MockObject $mockDivisionService */
+        $mockDivisionService = $this->createMock(HansardServiceInterface::class);
         $mockDivisionService->method('getNewestDivisionDate')->willReturn('2018-01-23');
 
         $response = $sut->lastDivisionParsedAction($mockDivisionService, $mockResponse);

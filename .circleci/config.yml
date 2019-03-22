@@ -28,7 +28,7 @@ jobs:
       - run:
           name: Checking composer.lock
           command: composer validate --no-check-all --strict
-          
+
       # Download and cache dependencies
       - restore_cache:
           keys:

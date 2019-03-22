@@ -3,8 +3,9 @@ declare(strict_types = 1);
 
 namespace PublicWhip\Factories;
 
-use Psr\Log\LoggerInterface;
-use PublicWhip\Entities\DivisionEntity;
+use PublicWhip\Entities\DivisionVoteSummary;
+use PublicWhip\Entities\HansardEntity;
+use PublicWhip\Entities\MotionEntity;
 
 /**
  * Factories up entities.
@@ -12,15 +13,26 @@ use PublicWhip\Entities\DivisionEntity;
 interface EntityFactoryInterface
 {
     /**
-     * @param LoggerInterface $logger The logger.
+     * Build a HansardEntry.
+     *
+     * @param array<string,string|int|float|object|bool> $data Data to build the entity with.
+     * @return HansardEntity
      */
-    public function __construct(LoggerInterface $logger);
+    public function hansardEntry(array $data): HansardEntity;
 
     /**
-     * Build a division.
+     * Builds a division summary vote.
      *
-     * @param array<string,string|int|float|object|bool>$data Data to build the entity with.
-     * @return DivisionEntity
+     * @param array<string,string|int|float|object|bool> $data Data to build the entity with.
+     * @return DivisionVoteSummary
      */
-    public function division(array $data): DivisionEntity;
+    public function divisionVoteSummary(array $data): DivisionVoteSummary;
+
+    /**
+     * Builds a motion.
+     *
+     * @param array<string,string|int|float|object|bool> $data Data to build the entity with.
+     * @return MotionEntity
+     */
+    public function motion(array $data): MotionEntity;
 }
