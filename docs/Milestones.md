@@ -54,3 +54,5 @@ See completed releases in the [ChangeLog](ChangeLog.md).
 * 2.5 - Get really high code quality and unit tests (see
 [PHP Code Quality Tools](https://web-techno.net/code-quality-check-tools-php/) for additional checks)
  
+ * 3.0 - Have separate repositories for the 'web front end' and the backend: separate the code out appropriately
+ so we become an API first platform.
