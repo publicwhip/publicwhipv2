@@ -17,10 +17,11 @@ interface DateTimeFactoryInterface
     public function __construct(LoggerInterface $logger);
 
     /**
-     * Convert a string in yyyy-mm-dd format to a DateTimeImmutable.
+     * Convert a string to a DateTimeImmutable.
      *
-     * @param string $ymd Date in yyyy-mm-dd to be converted. Time will be set to 00:00:00
+     * @param string $format The date format.
+     * @param string $inputDate Date to be converted.
      * @return DateTimeImmutable
      */
-    public function dateTimeImmutableFromYyyyMmDd(string $ymd): DateTimeImmutable;
+    public function createImmutableFromFormat(string $format, string $inputDate): DateTimeImmutable;
 }

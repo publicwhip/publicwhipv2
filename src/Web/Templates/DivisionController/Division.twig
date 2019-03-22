@@ -1,16 +1,16 @@
 {% extends "DivisionController/template.twig" %}
 {% block title %}Counting votes{% endblock title %}
 {% block content %}
-    Division id: {{ division.divisionId }}<br>
+    Division id: {{ division.id }}<br>
     Date and number: {{ division.date|date('Y-m-d') }} - {{ division.number }}<br>
     House: {{ division.house }}<br>
     Source: {{ division.sourceUrl }}<br>
     Debate: {{ division.debateUrl }}<br>
-    Motion Title: {{ division.motionTitle }}<br>
-    Original Title: {{ division.originalMotionTitle }}<br>
+    Motion Title: {{ division.title|raw }}<br>
+    Original Title: {{ division.officialTitle|raw }}<br>
 
-    Motion: {{ division.motionText|raw }}<br>
-    Original motion text: {{ division.originalMotionText }}<br>
+    Motion: {{ division.description|raw }}<br>
+    Original motion text: {{ division.officialText }}<br>
     {% if division.possibleTurnout %}
         <p>There were {{ division.rebellions }} rebellions out of a total of {{ division.turnout }} votes
             out of a possible {{ division.possibleTurnout }} giving the ayes a

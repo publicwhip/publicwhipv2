@@ -5,8 +5,11 @@ namespace PublicWhip\Web\Controllers;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use PublicWhip\Entities\HansardEntity;
 use PublicWhip\Providers\TemplateProviderInterface;
-use PublicWhip\Services\DivisionServiceInterface;
+use PublicWhip\Services\DivisionVoteSummaryServiceInterface;
+use PublicWhip\Services\HansardServiceInterface;
+use PublicWhip\Services\MotionServiceInterface;
 use ReflectionException;
 use Slim\Exception\NotFoundException;
 
@@ -28,26 +31,39 @@ class DivisionController
     private $request;
 
     /**
-     * @var DivisionServiceInterface $divisionService
+     * @var HansardServiceInterface $hansardService
      */
-    private $divisionService;
+    private $hansardService;
 
+    /**
+     * @var DivisionVoteSummaryServiceInterface
+     */
+    private $divisionVoteSummaryService;
+
+    /**
+     * @var MotionServiceInterface
+     */
+    private $motionService;
     /**
      * DivisionController constructor.
      *
      * @param TemplateProviderInterface $templateProvider The templating system provider.
      * @param ServerRequestInterface $request The actual server request information.
-     * @param DivisionServiceInterface $divisionService The division service.
+     * @param HansardServiceInterface $hansardService The division service.
      */
     public function __construct(
         TemplateProviderInterface $templateProvider,
         ServerRequestInterface $request,
-        DivisionServiceInterface $divisionService
+        HansardServiceInterface $hansardService,
+    DivisionVoteSummaryServiceInterface $divisionVoteSummaryService,
+    MotionServiceInterface $motionService
     )
     {
         $this->templateProvider = $templateProvider;
         $this->request = $request;
-        $this->divisionService = $divisionService;
+        $this->hansardService = $hansardService;
+        $this->divisionVoteSummaryService=$divisionVoteSummaryService;
+        $this->motionService=$motionService;
     }
 
     /**
@@ -63,6 +79,36 @@ class DivisionController
     }
 
     /**
+     * Populate a division with summary and motion text.
+     *
+     * @param HansardEntity $hansard Input division.
+     * @return array Ready for output to templates or JSON.
+     */
+    private function populateDivisionArray(HansardEntity $hansard) {
+
+        $motion=$this->motionService->getLatestForDivision($hansard->getId());
+        $return=[
+            'id'=>$hansard->getId(),
+            'date'=>$hansard->getDate(),
+            'number'=>$hansard->getNumber(),
+            'house'=>$hansard->getHouse(),
+            'title'=>$motion->getTitle(),
+            'description'=>$motion->getMotion(),
+            'officialTitle'=>$hansard->getTitle(),
+            'officialText'=>$hansard->getText(),
+            'debateUrl'=>$hansard->getDebateUrl(),
+            'sourceUrl'=>$hansard->getSourceUrl()
+        ];
+        $summaryVotes=$this->divisionVoteSummaryService->getForDivision($hansard->getId());
+        if ($summaryVotes) {
+            $return['possibleTurnout']=$summaryVotes->getPossibleTurnout();
+            $return['turnout']=$summaryVotes->getTurnout();
+            $return['rebellions']=$summaryVotes->getRebellions();
+            $return['ayeMajority']=$summaryVotes->getAyeMajority();
+        }
+        return $return;
+    }
+    /**
      * Show a division by it's id.
      *
      * @param string $divisionId Has to support string as this is passed from the frontend.
@@ -73,15 +119,15 @@ class DivisionController
      */
     public function showDivisionById(string $divisionId, ResponseInterface $response): ResponseInterface
     {
-        $division = $this->divisionService->findByDivisionId((int)$divisionId);
-        if (!$division) {
+        $hansard = $this->hansardService->findByDivisionId((int)$divisionId);
+        if (!$hansard) {
             throw new NotFoundException($this->request, $response);
         }
         return $this->templateProvider->render(
             $response,
             'DivisionController/Division.twig',
             [
-                'division' => $division
+                'division' => $this->populateDivisionArray($hansard)
             ]
         );
     }
@@ -105,15 +151,15 @@ class DivisionController
         ResponseInterface $response
     ): ResponseInterface
     {
-        $division = $this->divisionService->findByHouseDateAndNumber($house, $date, (int)$divisionNumber);
-        if (!$division) {
+        $hansard = $this->hansardService->findByHouseDateAndNumber($house, $date, (int)$divisionNumber);
+        if (!$hansard) {
             throw new NotFoundException($this->request, $response);
         }
         return $this->templateProvider->render(
             $response,
             'DivisionController/Division.twig',
             [
-                'division' => $division
+                'division' => $this->populateDivisionArray($hansard)
             ]
         );
     }

@@ -18,6 +18,7 @@ Internally, it has the following images:
 The alpine images can be access via ssh using:
 
 `docker exec -it publicwhip-nginx /bin/ash`
+`docker exec -it publicwhip-php /bin/ash`
 
 whilst the others can be accessed using
 

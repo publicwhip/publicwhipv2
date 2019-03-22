@@ -5,6 +5,7 @@ namespace PublicWhip;
 
 use DebugBar\Bridge\MonologCollector;
 use DI\Container;
+use DI\Definition\Helper\CreateDefinitionHelper;
 use Invoker\Invoker;
 use Invoker\ParameterResolver\AssociativeArrayResolver;
 use Invoker\ParameterResolver\Container\TypeHintContainerResolver;
@@ -27,6 +28,8 @@ use PublicWhip\Factories\DateTimeFactoryInterface;
 use PublicWhip\Factories\EntityFactory;
 use PublicWhip\Factories\EntityFactoryInterface;
 use PublicWhip\Providers\CallableResolverProvider;
+use PublicWhip\Providers\CheckTypeProvider;
+use PublicWhip\Providers\CheckTypeProviderInterface;
 use PublicWhip\Providers\ControllerInvokerProvider;
 use PublicWhip\Providers\DatabaseProvider;
 use PublicWhip\Providers\DatabaseProviderInterface;
@@ -41,8 +44,12 @@ use PublicWhip\Providers\TemplateProvider;
 use PublicWhip\Providers\TemplateProviderInterface;
 use PublicWhip\Providers\WikiParserProvider;
 use PublicWhip\Providers\WikiParserProviderInterface;
-use PublicWhip\Services\DivisionService;
-use PublicWhip\Services\DivisionServiceInterface;
+use PublicWhip\Services\DivisionVoteSummaryService;
+use PublicWhip\Services\DivisionVoteSummaryServiceInterface;
+use PublicWhip\Services\HansardService;
+use PublicWhip\Services\HansardServiceInterface;
+use PublicWhip\Services\MotionService;
+use PublicWhip\Services\MotionServiceInterface;
 use PublicWhip\Web\ErrorHandlers\ErrorHandler;
 use PublicWhip\Web\ErrorHandlers\NotFoundHandler;
 use PublicWhip\Web\ErrorHandlers\PhpErrorHandler;
@@ -55,6 +62,7 @@ use Slim\Http\Headers;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\HttpCache\CacheProvider;
+use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouterInterface;
 use Slim\Router;
 use Slim\Views\Twig;
@@ -201,27 +209,20 @@ class Config
                 return new Invoker(new ResolverChain($resolvers), $container);
             },
 
-            'callableResolver' => autowire(CallableResolverProvider::class)
+            CallableResolverInterface::class => autowire(CallableResolverProvider::class),
+
+            'callableResolver' => get(CallableResolverInterface::class),
         ];
     }
 
     /**
-     * The general configurations needed to run the system (no matter what environment).
+     * Get the general configuration loggers
      *
-     * @return array<string, array|bool|(callable)|object|int|string>
+     * @return array<string, (Closure(Psr\Container\ContainerInterface):Monolog\Logger)|DI\Definition\Reference>
      */
-    public function getGeneralConfig(): array
+    private function getGeneralLoggers(): array
     {
-        /**
-         * Default settings.
-         */
-        $defaultSettings = [
-            'settings.isWeb' => false
-        ];
-        /**
-         * Loggers
-         */
-        $loggers = [
+        return [
             'logger.default' => static function (ContainerInterface $container): Logger {
                 $settings = $container->get('settings.logger');
                 $logger = new Logger('default');
@@ -251,11 +252,16 @@ class Config
             },
             LoggerInterface::class => get('logger.default')
         ];
-        /**
-         * Providers
-         */
-        $providers = [
+    }
 
+    /**
+     * Get the general configuration providers.
+     *
+     * @return array<string,callable|CreateDefinitionHelper> The providers.
+     */
+    private function getGeneralProviders(): array
+    {
+        return [
             DatabaseProviderInterface::class => create(DatabaseProvider::class)
                 ->constructor(get('settings.db'))
                 ->method('addToDebugger', get(DebuggerProviderInterface::class)),
@@ -285,11 +291,28 @@ class Config
                 ->constructor(get('settings.mail')),
             DebuggerProviderInterface::class => create(DebuggerProvider::class)
                 ->constructor(get('settings.debug')),
-
+            CheckTypeProviderInterface::class => autowire(CheckTypeProvider::class)
+                ->constructorParameter('logger', get('logger.providers')),
             WikiParserProviderInterface::class => autowire(WikiParserProvider::class)
                 ->constructorParameter('logger', get('logger.providers'))
 
         ];
+    }
+
+    /**
+     * The general configurations needed to run the system (no matter what environment).
+     *
+     * @return array<string, array|bool|callable|object|int|string>
+     */
+    public function getGeneralConfig(): array
+    {
+        /**
+         * Default settings.
+         */
+        $defaultSettings = [
+            'settings.isWeb' => false
+        ];
+
         /**
          * Factories
          */
@@ -303,10 +326,20 @@ class Config
          * Services.
          */
         $services = [
-            DivisionServiceInterface::class => autowire(DivisionService::class)
+            HansardServiceInterface::class => autowire(HansardService::class)
+                ->constructorParameter('logger', get('logger.services')),
+            DivisionVoteSummaryServiceInterface::class => autowire(DivisionVoteSummaryService::class)
+                ->constructorParameter('logger', get('logger.services')),
+            MotionServiceInterface::class => autowire(MotionService::class)
                 ->constructorParameter('logger', get('logger.services'))
         ];
 
-        return array_merge($defaultSettings, $loggers, $providers, $factories, $services);
+        return array_merge(
+            $defaultSettings,
+            $this->getGeneralLoggers(),
+            $this->getGeneralProviders(),
+            $factories,
+            $services
+        );
     }
 }

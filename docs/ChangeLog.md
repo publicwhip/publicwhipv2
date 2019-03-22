@@ -3,7 +3,12 @@
 These are items that have been done and released. To see what's planned, have a look at the
 [Milestones](Milestones.md).
 
-* 0.4.3 - Move over to the Doctrine coding standard.
+* 0.4.4 - Changes to divisions. - DONE - 2019-03-21
+    
+    Divisions have been split up into three different segments to allow for easier editing.
+    
+    
+* 0.4.3 - Move over to the Doctrine coding standard. DONE - 2019-03-19
 
     Add more code quality checks.
     

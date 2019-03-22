@@ -27,7 +27,7 @@ class Routing
      *
      * @param App $app Slim App.
      */
-    public function getRouting(App $app): void
+    public function setupRouting(App $app): void
     {
 
         // index page
@@ -41,7 +41,8 @@ class Routing
         /**
          * Register the debugbar only if we are in development/debug mode,
          */
-        if (!$app->getContainer()->get('settings.debug')) {
+        $container=$app->getContainer();
+        if (!($container->has('settings.debug') && $container->get('settings.debug'))) {
             return;
         }
         $app->get('/debugbar/[{filePath:.*}]', [DebugBarController::class, 'staticFileAction']);

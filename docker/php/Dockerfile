@@ -5,7 +5,7 @@ RUN apk update && apk upgrade && \
     apk add --no-cache bash git openssh
 
 # Add pdo_mysql
-RUN docker-php-ext-install pdo_mysql
+RUN docker-php-ext-install pdo_mysql mysqli
 
 # Add xDebug
 RUN apk add --no-cache $PHPIZE_DEPS \
