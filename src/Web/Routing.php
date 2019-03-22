@@ -70,6 +70,13 @@ class Routing
                     '{divisionNumber:[0-9]+}/',
                     [DivisionController::class, 'showDivisionByDateAndNumberAction']
                 )->setName('divisionByHouseDateNumber');
+                $app->get(
+                    '/' .
+                    '{house:commons|lords|scotland}/' .
+                    '{date:18|19|20[0-9][0-9]\-[0-1][0-9]\-[0-3][0-9]}/' .
+                    '{divisionNumber:[0-9]+}/edit/',
+                    [DivisionController::class, 'editDivisionByDateAndNumberAction']
+                )->setName('editDivisionByHouseDateNumber');
             }
         );
     }

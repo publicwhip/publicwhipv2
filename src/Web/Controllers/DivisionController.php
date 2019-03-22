@@ -108,6 +108,7 @@ class DivisionController
         }
         return $return;
     }
+
     /**
      * Show a division by it's id.
      *
@@ -126,6 +127,37 @@ class DivisionController
         return $this->templateProvider->render(
             $response,
             'DivisionController/Division.twig',
+            [
+                'division' => $this->populateDivisionArray($hansard)
+            ]
+        );
+    }
+    /**
+     * Show a division by it's house, date and number.
+     *
+     * @param string $house Name of the house.
+     * @param string $date Date (in YYYY-MM-DD format)
+     * @param string $divisionNumber The division number.
+     * @param ResponseInterface $response The response to populate.
+     *
+     * @return ResponseInterface
+     * @throws NotFoundException
+     * @throws ReflectionException
+     */
+    public function editDivisionByDateAndNumberAction(
+        string $house,
+        string $date,
+        string $divisionNumber,
+        ResponseInterface $response
+    ): ResponseInterface
+    {
+        $hansard = $this->hansardService->findByHouseDateAndNumber($house, $date, (int)$divisionNumber);
+        if (!$hansard) {
+            throw new NotFoundException($this->request, $response);
+        }
+        return $this->templateProvider->render(
+            $response,
+            'DivisionController/DivisionEdit.twig',
             [
                 'division' => $this->populateDivisionArray($hansard)
             ]

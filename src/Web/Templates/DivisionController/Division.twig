@@ -1,21 +1,52 @@
 {% extends "DivisionController/template.twig" %}
-{% block title %}Counting votes{% endblock title %}
-{% block content %}
-    Division id: {{ division.id }}<br>
-    Date and number: {{ division.date|date('Y-m-d') }} - {{ division.number }}<br>
-    House: {{ division.house }}<br>
-    Source: {{ division.sourceUrl }}<br>
-    Debate: {{ division.debateUrl }}<br>
-    Motion Title: {{ division.title|raw }}<br>
-    Original Title: {{ division.officialTitle|raw }}<br>
+{% set canonical = path_for(
+    'divisionByHouseDateNumber',
+    { 'house':division.house,
+        'date':division.date|date('Y-m-d'),
+        'divisionNumber':division.number })
+%}
+{% set title = division.title|raw %}
 
-    Motion: {{ division.description|raw }}<br>
-    Original motion text: {{ division.officialText }}<br>
-    {% if division.possibleTurnout %}
-        <p>There were {{ division.rebellions }} rebellions out of a total of {{ division.turnout }} votes
-            out of a possible {{ division.possibleTurnout }} giving the ayes a
-            majority of {{ division.ayeMajority }}.</p>
-    {% else %}
-        No summary information currently available.
-    {% endif %}
+{% block content %}
+
+    <table class="table table-sm">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col">Division id</th>
+            <th scope="col">Date</th>
+            <th scope="col">Number</th>
+            <th scope="col">House</th>
+            {% if division.possibleTurnout %}
+                <th scope="col">Possible votes</th>
+                <th scope="col">Total votes</th>
+                <th scope="col">Rebellions</th>
+                <th scope="col">Majority</th>
+                <th scope="col">Voted for</th>
+            {% endif %}
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>{{ division.id }}</td>
+            <td>{{ division.date|date('Y-m-d') }}</td>
+            <td>{{ division.number }}</td>
+            <td>{{ division.house }}</td>
+            {% if division.possibleTurnout %}
+                <td>{{ division.possibleTurnout }}</td>
+                <td>{{ division.turnout }}</td>
+                <td>{{ division.rebellions }}</td>
+                <td>{{ division.ayeMajority|abs }}</td>
+                <td>{% if division.ayeMajority>0 %}AYE{% else %}NO{% endif %}</td>
+            {% endif %}
+        </tr>
+        </tbody>
+    </table>
+    <a class="btn btn-primary btn-sm" href="{{ path_for(
+        'editDivisionByHouseDateNumber',
+        { 'house':'commons','date':'2019-02-12','divisionNumber':'325' }) }}">Edit</a><br/>
+
+    <div class="motion">
+        {{ division.description|raw }}
+    </div>
+
 {% endblock content %}

@@ -1,32 +1,52 @@
 {% extends "DivisionController/template.twig" %}
-{% block title %}Editing division {{ division.divisionId }}{% endblock title %}
+{% set title = "Editing division" %}
 
-<p>You are editing division {{ division.divisionId }}.</p>
+{% block content %}
+
+<p>You are editing division {{ division.id }}.</p>
 
 <form method="post">
     <div id="editing-division-title">
     <div class="form-group">
         <label for="originalTitle">Original title</label>
-        <input type="text" id="originalTitle" aria-describedby="originalTitleHelp" disabled value="{{ division.originalMotionTitle|e }}">
-        <small id="originalTitleHelp">This is the original title of the division as loaded from Hansard</small>
+        <input type="text"  class="form-control" id="originalTitle" aria-describedby="originalTitleHelp" disabled value="{{ division.officialTitle|e }}" readonly>
+        <small id="originalTitleHelp" class="form-text text-muted">This is the original title of the division as loaded from Hansard</small>
     </div>
     <div class="form-group">
-        <label for="newTitle">New title</label>
-        <input type="text" id="newTitle" aria-describedby="newTitleHelp"  value="{{ newTitle|e }}">
-        <small id="newTitleHelp">This is the new title</small>
+        <label for="newTitle">Title</label>
+        <input type="text"  class="form-control" id="newTitle" aria-describedby="newTitleHelp"  value="{{ title|e }}">
+        <small id="newTitleHelp" class="form-text text-muted">This is the new title</small>
     </div>
     </div>
     <div id="editing-division-motion">
         <div class="form-group">
-            <label for="originalMotion">Original motion text</label>
-            <textarea id="originalMotion" aria-describedby="originalMotionHelp">{{ division.originalMotionText }}</textarea>
-            <small id="originalMotionHelp">This is the original text of the motion as loaded from Hansard</small>
+            <label for="originalMotion">Motion text</label>
+            <textarea  class="form-control" id="originalMotion" aria-describedby="originalMotionHelp" readonly>{{ division.officialText|raw }}</textarea>
+            <small id="originalMotionHelp" class="form-text text-muted">This is the original text of the motion as loaded from Hansard</small>
         </div>
         <div class="form-group">
             <label for="newMotion">New motion text</label>
-            <textarea type="text" id="newMotion" aria-describedby="newMotionHelp">{{ newMotion|e }}
-            <small id="newMotionHelp">This is the the new motion</small>
+            <textarea class="form-control"  type="text" id="newMotion" aria-describedby="newMotionHelp">{{ description|e }}</textarea>
+            <small id="newMotionHelp" class="form-text text-muted">This is the the new motion</small>
+        </div>
+        <div class="form-group">
+            <label for="comments">Comments</label>
+            <textarea  class="form-control" type="text" id="comments" aria-describedby="commentsHelp">{{ comments|e }}</textarea>
+            <small id="commentsHelp" class="form-text text-muted">Comments about this division (not for general public display)</small>
         </div>
     </div>
-
+    <div id="editing-division-summary">
+        <div class="form-group">
+            <label for="ayeSummary">Summary for an MP or Lord or voted 'Aye'</label>
+            <input class="form-control"  type="text" id="ayeSummary" aria-describedby="ayeSummaryHelp"  value="{{ ayeSummary|e }}">
+            <small id="ayeSummaryHelp" class="form-text text-muted">If an MP voted 'aye' (yes) how would this be summarised in one line?</small>
+        </div>
+        <div class="form-group">
+            <label for="noeSummary">Summary for an MP or Lord or voted 'No'</label>
+            <input  class="form-control" type="text" id="noeSummary" aria-describedby="noeSummaryHelp"  value="{{ noeSummary|e }}">
+            <small id="noeSummaryHelp" class="form-text text-muted">If an MP voted 'Noe' (no) how would this be summarised in one line?</small>
+        </div>
+    </div>
+    <button class="btn btn-primary" type="submit">Save changes</button>
 </form>
+{% endblock %}

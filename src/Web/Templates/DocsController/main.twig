@@ -1,29 +1,26 @@
 {% extends "template.twig" %}
-{% block title %}Documentation{% endblock title %}
+{% set mainNavSection = 'documentation' %}
+{% set title = "Documentation" %}
+
 {% block secondaryNavigation %}
-    <div class="custom-wrapper pure-g">
-        <div class="pure-u-1 pure-u-md-1-3">
-            <div class="pure-menu pure-menu-horizontal">
-                <ul class="pure-menu-list">
-                    <li class="pure-menu-item"><a href="/docs/" class="pure-menu-link">Read me</a></li>
-                    <li class="pure-menu-item"><a href="/docs/docs/Milestones.md" class="pure-menu-link">Milestones</a>
-                    </li>
-                    <li class="pure-menu-item"><a href="/docs/LICENSE.txt" class="pure-menu-link">License</a></li>
-                    <li class="pure-menu-item"><a href="/docs/docs/CODE_OF_CONDUCT.md" class="pure-menu-link">Code of
-                            Conduct</a>
-                    </li>
-
-                    <li class="pure-menu-item"><a href="/docs/docs/CONTRIBUTING.md"
-                                                  class="pure-menu-link">Contributing</a></li>
-                    <li class="pure-menu-item"><a href="/docs/docs/QuickStart.md" class="pure-menu-link">Quick Start</a>
-                    </li>
-
-                    <li class="pure-menu-item"><a href="/docs/docs/Contact.md" class="pure-menu-link">Contact</a></li>
-
-                </ul>
-            </div>
-        </div>
-    </div>
+    <li class="nav-item">
+        <a class="nav-link" href="/docs/">Read me</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/docs/docs/Milestones.md">Milestones</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/docs/LICENSE.txt">License</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/docs/docs/CODE_OF_CONDUCT.md">Code of conduct</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/docs/docs/CONTRIBUTING.md">Contributing</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/docs/docs/Contact.md">Contact</a>
+    </li>
 {% endblock secondaryNavigation %}
 {% block content %}
 
