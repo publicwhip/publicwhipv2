@@ -133,7 +133,7 @@ class MotionService implements MotionServiceInterface
                 'noeSummary' => $actionText['no'] ?? '',
                 'id' => $wiki ? $wiki->id : null,
                 'lastEditedByUserId' => $wiki ? $wiki->lastEditedByUserId : null,
-                'lastEdited' => $wiki ? $wiki->lastEditDateTime : null
+                'lastEditDateTime' => $wiki ? $wiki->lastEditDateTime : null
             ]
         );
 

@@ -4,7 +4,6 @@ declare(strict_types = 1);
 namespace PublicWhip\Factories;
 
 use Closure;
-use DateTimeInterface;
 use Psr\Log\LoggerInterface;
 use PublicWhip\Entities\DivisionVoteSummary;
 use PublicWhip\Entities\HansardEntity;
@@ -56,7 +55,7 @@ final class EntityFactory implements EntityFactoryInterface
             HansardEntity::class,
             [
                 'id' => 'int',
-                'date' => DateTimeInterface::class,
+                'date' => 'date',
                 'number' => 'int',
                 'sourceUrl' => 'string',
                 'debateUrl' => 'string',
@@ -84,7 +83,7 @@ final class EntityFactory implements EntityFactoryInterface
             [
                 'divisionId' => 'int',
                 'rebellions' => 'int',
-                'tells' => 'int',
+                'tellers' => 'int',
                 'turnout' => 'int',
                 'possibleTurnout' => 'int',
                 'ayeMajority' => 'int',
@@ -117,7 +116,7 @@ final class EntityFactory implements EntityFactoryInterface
             [
                 'id' => 'int',
                 'lastEditedByUserId' => 'int',
-                'lastEdited' => DateTimeInterface::class,
+                'lastEditDateTime' => 'date',
             ]
         );
 
@@ -133,7 +132,7 @@ final class EntityFactory implements EntityFactoryInterface
      * @param array<string,string>|null $optional The optional data configuration.
      * @return object
      */
-    private function buildFromArray(array $data, string $entityName, array $required, ?array $optional = null): object
+    public function buildFromArray(array $data, string $entityName, array $required, ?array $optional = null): object
     {
         $this->logger->debug('Building ' . $entityName);
         $new = new $entityName();
@@ -143,10 +142,16 @@ final class EntityFactory implements EntityFactoryInterface
          *
          * @param object $object Object we are modifying.
          * @param string $property Name of the property.
-         * @param string|bool|int|float $newValue New value.
+         * @param string|bool|int|float|object $newValue New value.
          */
         $hydrate = function (object $object, string $property, $newValue): void {
             Closure::bind(function () use ($property, $newValue): void {
+                $method = 'set' . ucfirst($property);
+                if (method_exists($this, $method)) {
+                    $this->$method($newValue);
+
+                    return;
+                }
                 $this->$property = $newValue;
             }, $object, $object)->__invoke();
         };

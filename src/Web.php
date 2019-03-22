@@ -95,7 +95,7 @@ class Web
     public function run(): ResponseInterface
     {
         $routing = new Routing();
-        $routing->getRouting($this->app);
+        $routing->setupRouting($this->app);
         $routing->setupTrailingSlash($this->app);
 
         return $this->app->run();

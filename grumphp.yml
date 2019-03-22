@@ -75,7 +75,6 @@ parameters:
         - '.idea'
         - 'originalPublicWhipCode'
         - 'v1migrationUtils'
-        - 'tests'
         - 'config'
     phpversion:
       project: '7.2'

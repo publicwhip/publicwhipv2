@@ -56,12 +56,14 @@ final class DateTimeFactory implements DateTimeFactoryInterface
 
         if (!$date instanceof DateTimeImmutable) {
             $errors = DateTimeImmutable::getLastErrors();
-            $encoded = json_encode($errors);
+            $errorsText = $errors['errors'] ? '"' . implode('", "', $errors['errors']) . '"' : null;
+            $warningText = $errors['warnings'] ? '"' . implode('", "', $errors['warnings']) . '"' : null;
             $message = sprintf(
-                'Failed to create createImmutableFromFormat from %s using the input %s : errors: %s',
+                'Failed to createImmutableFromFormat from %s using the input %s : errors: %s : warnings: %s',
                 $format,
                 $inputDate,
-                $encoded ?: '[failed]'
+                $errorsText ?? '[none]',
+                $warningText ?? '[none]'
             );
             $this->logger->warning($message);
 

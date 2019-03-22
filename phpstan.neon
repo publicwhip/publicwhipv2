@@ -6,20 +6,23 @@ parameters:
     level: 7
     paths:
         - src/
+        - tests/
     exclude_analyse:
-        -  %rootDir%/tests/*
         -  %rootDir%/config/*
     ignoreErrors:
         -  '#Only booleans are allowed in #'
         -
             message: '#Variable property access on object.#'
             path: %currentWorkingDirectory%/src/Factories/EntityFactory.php
+
+        -
+            message: '#Variable method call on object.#'
+            path: %currentWorkingDirectory%/src/Factories/EntityFactory.php
+
         -
             message: '#Parameter \#4 \$routeArguments \(array\<string,#'
             path: %currentWorkingDirectory%/src/Providers/ControllerInvokerProvider.php
+
         -
             message: '#Access to an undefined property object::#'
             path: %currentWorkingDirectory%/src/Services/
-        -
-            message: '#Method class@anonymous#'
-            path: %currentWorkingDirectory%/src/Providers/MailerProvider.php

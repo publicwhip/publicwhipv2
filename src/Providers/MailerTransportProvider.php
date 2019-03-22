@@ -4,7 +4,6 @@ declare(strict_types = 1);
 namespace PublicWhip\Providers;
 
 use InvalidArgumentException;
-use RuntimeException;
 use Swift_NullTransport;
 use Swift_SendmailTransport;
 use Swift_SmtpTransport;
@@ -23,67 +22,86 @@ class MailerTransportProvider implements MailerTransportProviderInterface
     private $transport;
 
     /**
+     * Configuration options.
+     *
+     * @var array<string,string> $options
+     */
+    private $options;
+
+    /**
      * Setup the transport.
      *
      * @param array<string,string> $options Configuration options.
      */
     public function __construct(array $options)
     {
-        $transport = $options['transport'] ?: '';
+        $options['transport'] = $options['transport'] ?? '';
 
-        switch ($transport) {
-            case 'null':
-                $this->transport = new Swift_NullTransport();
+        $this->options = $options;
 
-                break;
+        if ('null' === $options['transport']) {
+            return;
+        }
+
+        switch ($options['transport']) {
             case 'smtp':
-                $this->buildSmtp($options);
+                $this->validateSmtp();
 
                 break;
             case 'sendmail':
-                $this->buildSendmail($options);
+                $this->validateSendmail();
 
                 break;
             default:
-                throw new RuntimeException('Unrecognised mail transport');
+                throw new InvalidArgumentException('Unrecognised mail transport');
+        }
+    }
+
+    /**
+     * Validates the SMTP configuration.
+     */
+    private function validateSmtp(): void
+    {
+        if (!isset($this->options['host'])) {
+            throw new InvalidArgumentException('Missing host for smtp transport');
+        }
+        if (!isset($this->options['port'])) {
+            throw new InvalidArgumentException('Missing port for smtp transport');
+        }
+        if (!isset($this->options['username'])) {
+            throw new InvalidArgumentException('Missing username for smtp transport');
+        }
+        if (!isset($this->options['password'])) {
+            throw new InvalidArgumentException('Missing password for smtp transport');
         }
     }
 
     /**
      * Build SMTP transport.
-     *
-     * @param array<string,string> $options Configuration options
      */
-    private function buildSmtp(array $options): void
+    private function buildSmtp(): void
     {
-        if (!isset($options['host'])) {
-            throw new InvalidArgumentException('Missing host for smtp transport');
+        $this->transport = (new Swift_SmtpTransport($this->options['host'], (int)$this->options['port']))
+            ->setUsername($this->options['username'])
+            ->setPassword($this->options['password']);
+    }
+
+    /**
+     * Validate the sendmail configuration.
+     */
+    private function validateSendmail(): void
+    {
+        if (!isset($this->options['command'])) {
+            throw new InvalidArgumentException('Missing command for sendmail transport');
         }
-        if (!isset($options['port'])) {
-            throw new InvalidArgumentException('Missing port for smtp transport');
-        }
-        if (!isset($options['username'])) {
-            throw new InvalidArgumentException('Missing username for smtp transport');
-        }
-        if (!isset($options['password'])) {
-            throw new InvalidArgumentException('Missing password for smtp transport');
-        }
-        $this->transport = (new Swift_SmtpTransport($options['host'], (int)$options['port']))
-            ->setUsername($options['username'])
-            ->setPassword($options['password']);
     }
 
     /**
      * Build sendmail.
-     *
-     * @param array<string,string> $options Configuration options.
      */
-    private function buildSendmail(array $options): void
+    private function buildSendmail(): void
     {
-        if (!isset($options['command'])) {
-            throw new InvalidArgumentException('Missing command for sendmail transport');
-        }
-        $this->transport = new Swift_SendmailTransport($options['command']);
+        $this->transport = new Swift_SendmailTransport($this->options['command']);
     }
 
     /**
@@ -93,6 +111,24 @@ class MailerTransportProvider implements MailerTransportProviderInterface
      */
     public function getTransport(): Swift_Transport
     {
+        if (null !== $this->transport) {
+            return $this->transport;
+        }
+        switch ($this->options['transport']) {
+            case 'null':
+                $this->transport = new Swift_NullTransport();
+
+                break;
+            case 'smtp':
+                $this->buildSmtp();
+
+                break;
+            case 'sendmail':
+                $this->buildSendmail();
+
+                break;
+        }
+
         return $this->transport;
     }
 }

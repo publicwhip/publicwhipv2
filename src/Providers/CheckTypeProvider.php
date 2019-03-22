@@ -55,7 +55,7 @@ class CheckTypeProvider implements CheckTypeProviderInterface
         $check = null;
         switch ($allowedType) {
             case 'int':
-                $check = $this->checkTypeInt($value);
+                $check = self::checkTypeInt($value);
                 break;
 
             case 'string':
@@ -65,7 +65,7 @@ class CheckTypeProvider implements CheckTypeProviderInterface
 
                 break;
 
-            case DateTimeInterface::class:
+            case 'date':
                 $check = $this->checkTypeDateTime($value);
 
                 break;
@@ -75,7 +75,7 @@ class CheckTypeProvider implements CheckTypeProviderInterface
                     sprintf(
                         'Bad definition found for %s: found unknown type %s',
                         $referenceName,
-                        $allowedType,
+                        $allowedType
                     )
                 );
         }
@@ -109,7 +109,7 @@ class CheckTypeProvider implements CheckTypeProviderInterface
      * @param string|int|float|object|bool $value The value to check.
      * @return DateTimeInterface|null Null if not matched.
      */
-    public function checkTypeDateTime($value): ?DateTimeInterface
+    private function checkTypeDateTime($value): ?DateTimeInterface
     {
         if ($value instanceof DateTimeInterface) {
             return $value;
@@ -138,7 +138,7 @@ class CheckTypeProvider implements CheckTypeProviderInterface
      * @param string|int|float|object|bool $value The value to check.
      * @return int|null Null if not accepted.
      */
-    private function checkTypeInt($value): ?int
+    private static function checkTypeInt($value): ?int
     {
         if (is_int($value)) {
             return $value;

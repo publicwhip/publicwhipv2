@@ -60,7 +60,7 @@ class DivisionVoteSummaryService implements DivisionVoteSummaryServiceInterface
             ->select([
                 'division_id as divisionId',
                 'rebellions',
-                'tells',
+                'tells AS tellers',
                 'turnout',
                 'possible_turnout as possibleTurnout',
                 'aye_majority as ayeMajority'
